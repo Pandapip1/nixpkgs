@@ -51,7 +51,7 @@ in {
     })
     (mkIf cfg.enableAllFirmware {
       assertions = [{
-        assertion = !cfg.enableAllFirmware || pkgs.config.allowUnfree;
+        assertion = !cfg.enableAllFirmware || pkgs.config.allowUnfree || config.nixpkgs.config.allowUnfree;
         message = ''
           the list of hardware.enableAllFirmware contains non-redistributable licensed firmware files.
             This requires nixpkgs.config.allowUnfree to be true.
