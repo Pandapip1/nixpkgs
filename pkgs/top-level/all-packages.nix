@@ -1240,6 +1240,8 @@ with pkgs;
   mkShell = callPackage ../build-support/mkshell { };
   mkShellNoCC = mkShell.override { stdenv = stdenvNoCC; };
 
+  mkSecurityWrapper = callPackage ../build-support/securitywrap/make-security-wrapper.nix { };
+
   mokutil = callPackage ../tools/security/mokutil { };
 
   mpsolve = libsForQt5.callPackage ../applications/science/math/mpsolve { };
