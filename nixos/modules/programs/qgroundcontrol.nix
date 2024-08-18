@@ -14,7 +14,7 @@ in
     programs.qgroundcontrol = {
       enable = lib.mkEnableOption "qgroundcontrol";
 
-      package = lib.mkPackageOption pkgs "qgroundcontrol" {};
+      package = lib.mkPackageOption pkgs "qgroundcontrol" { };
 
       blacklistModemManagerFromTTYUSB = lib.mkOption {
         type = lib.types.bool;
@@ -40,12 +40,17 @@ in
       '';
     };
 
-    # Security wrapper
+    # Use mkSecurityWrapper to set the real group ID to dialout to allow for unprivileged access to serial ports without causing GTK to crash
     security.wrappers.qgroundcontrol = {
-      source = lib.getExe cfg.package;
-      owner = "root"; # Sensible default; not setuid so this is not a security risk
-      group = "tty";
-      setgid = true;
+      source = lib.getExe (
+        pkgs.mkSecurityWrapper {
+          executable = lib.getExe cfg.package;
+          setRealGID = "dialout";
+        }
+      );
+      owner = "root";
+      group = "root";
+      capabilities = "cap_setgid+ep";
     };
   };
 
