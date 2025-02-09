@@ -29,8 +29,6 @@ clangStdenv.mkDerivation (finalAttrs: {
   };
 
   patches = [
-    ./match-wrappers.patch
-
     # FIXME: remove these when updating to next stable release
     (fetchpatch {
       name = "allow-regex-pattern-matching.patch";
