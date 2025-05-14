@@ -1,103 +1,127 @@
 {
   lib,
   stdenv,
-  python,
+  fetchFromGitHub,
+  fetchgit,
   buildPythonPackage,
   callPackage,
-  fetchurl,
-  autoPatchelfHook,
-  bash,
-  dejavu_fonts,
-  expat,
-  fontconfig,
-  lato,
-  libGL,
-  makeWrapper,
-  nspr,
+  wheel,
+  ninja,
+  setuptools,
+  gn,
   nss,
-  sbclPackages,
+  nspr,
   sqlite,
+  expat,
+  glibc,
 }:
 
 buildPythonPackage rec {
   pname = "kaleido";
   version = "0.2.1";
-  format = "wheel";
+  pyproject = true;
 
-  src =
-    {
-      # This library is so cursed that I have to use fetchurl instead of fetchPypi. I am not happy.
-      x86_64-linux = fetchurl {
-        url = "https://files.pythonhosted.org/packages/py2.py3/k/kaleido/kaleido-${version}-py2.py3-none-manylinux1_x86_64.whl";
-        hash = "sha256-qiHPG/HHj4+lCp99ReEAPDh709b+CnZ8+780S5W9w6g=";
-      };
-      aarch64-linux = fetchurl {
-        url = "https://files.pythonhosted.org/packages/py2.py3/k/kaleido/kaleido-${version}-py2.py3-none-manylinux2014_aarch64.whl";
-        hash = "sha256-hFgZhEyAgslGnZwX5CYh+/hcKyN++KhuyKhSf5i2USo=";
-      };
-      x86_64-darwin = fetchurl {
-        url = "https://files.pythonhosted.org/packages/py2.py3/k/kaleido/kaleido-${version}-py2.py3-none-macosx_10_11_x86_64.whl";
-        hash = "sha256-ym9z5/8AquvyhD9z8dO6zeGTDvUEEJP+drg6FXhQSac=";
-      };
-      aarch64-darwin = fetchurl {
-        url = "https://files.pythonhosted.org/packages/py2.py3/k/kaleido/kaleido-${version}-py2.py3-none-macosx_11_0_arm64.whl";
-        hash = "sha256-u5pdH3EDV9XUMu4kDvZlim0STD5hCTWBe0tC2px4fAU=";
-      };
-    }
-    ."${stdenv.hostPlatform.system}"
-      or (throw "Unsupported system for ${pname}: ${stdenv.hostPlatform.system}");
+  src = stdenv.mkDerivation {
+    inherit pname version;
 
-  nativeBuildInputs = (lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ]) ++ [
-    makeWrapper
-  ];
+    src = fetchFromGitHub {
+      owner = "plotly";
+      repo = "Kaleido";
+      tag = "v${version}";
+      hash = "sha256-/ZDPZCbm/y5ycQ4KaPuptR/FIcdP7gUjWHURBXlr+1w=";
+    };
+  };
+
+  postPatch = ''
+    cd repos
+    fetch --nohooks chromium
+    cd ..
+  '';
+
+  build-system = [ wheel setuptools ninja gn ];
+
   buildInputs = [
-    bash
-    dejavu_fonts
-    expat
-    fontconfig
-    lato
-    libGL
-    nspr
     nss
-    sbclPackages.cl-dejavu
+    nspr
     sqlite
+    expat
+    glibc
   ];
+
+  postPatch = ''
+    echo "${version}" > repos/kaleido/version
+    cp repos/linux_scripts/args_x64.gn repos/linux_scripts/args_x86_64.gn
+    cp repos/linux_scripts/args_arm64.gn repos/linux_scripts/args_aarch64.gn
+  '';
+
+  dontConfigure = true;
+
+  preBuild = ''
+    export KALEIDO_ARCH=$(echo $system | cut -d- -f1)
+    echo "Detected architecture: $KALEIDO_ARCH"
+
+    mkdir -p out/Kaleido_linux_$KALEIDO_ARCH
+
+    # Write out/Kaleido_linux_$KALEIDO_ARCH/args.gn
+    cp repos/linux_scripts/args_$KALEIDO_ARCH.gn out/Kaleido_linux_$KALEIDO_ARCH/args.gn
+    cd out/Kaleido_linux_$KALEIDO_ARCH
+    ls -la .
+    gn gen . --root=args.gn
+    cd ../..
+
+    # Copy kaleido/kaleido.cc to src/headless/app/kaleido.cc
+    rm -rf headless/app/scopes
+    mkdir -p headless/app
+    cp -r repos/kaleido/cc/* headless/app/
+
+    # Perform build, result will be out/Kaleido_linux_$KALEIDO_ARCH/kaleido
+    ninja -C out/Kaleido_linux_$KALEIDO_ARCH -j 16 kaleido
+
+    if [ ! -f "out/Kaleido_linux_$KALEIDO_ARCH/kaleido" ]
+    then
+      echo "Error: Kaleido executable was not built";
+      exit 1
+    fi
+
+    # First build up kaledo_minimal directory with core kaleido files
+    rm -rf repos/build/kaleido_minimal
+    mkdir -p repos/build/kaleido_minimal/bin
+    cp out/Kaleido_linux_$KALEIDO_ARCH/kaleido /repos/build/kaleido_minimal/bin
+    cp -r out/Kaleido_linux_$KALEIDO_ARCH/swiftshader/ /repos/build/kaleido_minimal/bin
+
+    # version
+    cp /repos/kaleido/version /repos/build/kaleido_minimal/
+
+    # license
+    cp /repos/kaleido/LICENSE.txt /repos/build/kaleido_minimal/
+    cp /repos/kaleido/README.md /repos/build/kaleido_minimal/
+    cp /repos/CREDITS.html /repos/build/kaleido_minimal/
+
+    # Copy kaleido_minimal/ directory to kaleido/
+    rm -rf /repos/build/kaleido
+    cp -r /repos/build/kaleido_minimal/ /repos/build/kaleido/
+
+    # fonts
+    mkdir -p /repos/build/kaleido/etc/
+    cp -r /etc/fonts/ /repos/build/kaleido/etc/fonts
+    mkdir -p /repos/build/kaleido/xdg
+    cp -r /usr/share/fonts/ /repos/build/kaleido/xdg/
+
+    # mathjax
+    unzip /repos/vendor/Mathjax-2.7.5.zip -d /repos/build/kaleido/etc/
+    mv /repos/build/kaleido/etc/Mathjax-2.7.5 /repos/build/kaleido/etc/mathjax
+
+    # Add full launch script
+    cp repos/linux_scripts/launch_script repos/build/kaleido/kaleido
+
+    # Add minimal launch script
+    cp repos/linux_scripts/minimal_launch_script repos/build/kaleido_minimal/kaleido
+
+    # cd to the build directory
+    cd repos/kaleido/py
+  '';
 
   pythonImportsCheck = [ "kaleido" ];
-
-  postInstall =
-    ''
-      # Expose kaleido binary
-      mkdir -p $out/bin
-      ln -s $out/${python.sitePackages}/kaleido/executable/bin/kaleido $out/bin/kaleido
-
-      # Relace bundled libraries with nixpkgs-packaged libraries
-      rm -rf $out/${python.sitePackages}/kaleido/executable/lib
-      mkdir -p $out/${python.sitePackages}/kaleido/executable/lib
-      ln -s ${expat}/lib/* $out/${python.sitePackages}/kaleido/executable/lib/
-      ln -s ${nspr}/lib/* $out/${python.sitePackages}/kaleido/executable/lib/
-      ln -s ${nss}/lib/* $out/${python.sitePackages}/kaleido/executable/lib/
-      ln -s ${sqlite}/lib/* $out/${python.sitePackages}/kaleido/executable/lib/
-
-      # Replace bundled font configuration with nixpkgs-packaged font configuration
-      rm -rf $out/${python.sitePackages}/kaleido/executable/etc/fonts
-      mkdir -p $out/${python.sitePackages}/kaleido/executable/etc/fonts/conf.d
-      ln -s ${fontconfig.out}/etc/fonts/fonts.conf $out/${python.sitePackages}/kaleido/executable/etc/fonts/
-      ls -s ${fontconfig.out}/etc/fonts/conf.d/* $out/${python.sitePackages}/kaleido/executable/etc/fonts/conf.d/
-      ln -s ${sbclPackages.cl-dejavu}/dejavu-fonts-ttf-2.37/fontconfig/* $out/${python.sitePackages}/kaleido/executable/etc/fonts/conf.d/
-
-      # Replace bundled fonts with nixpkgs-packaged fonts
-      # Currently this causes an issue where the fonts aren't found. I'm not sure why, so I'm leaving this commented out for now.
-      #rm -rf $out/${python.sitePackages}/kaleido/executable/xdg/fonts
-      #mkdir -p $out/${python.sitePackages}/kaleido/executable/xdg/fonts/truetype/dejavu $out/${python.sitePackages}/kaleido/executable/xdg/fonts/truetype/lato
-      #ln -s ${dejavu_fonts}/share/fonts/truetype/* $out/${python.sitePackages}/kaleido/executable/xdg/fonts/truetype/dejavu/
-      #ln -s ${lato}/share/fonts/lato/* $out/${python.sitePackages}/kaleido/executable/xdg/fonts/truetype/lato/
-    ''
-    + lib.optionalString (!stdenv.hostPlatform.isDarwin) ''
-      # Replace bundled swiftshader with libGL
-      rm -rf $out/${python.sitePackages}/kaleido/executable/bin/swiftshader
-      ln -s ${libGL}/lib $out/${python.sitePackages}/kaleido/executable/bin/swiftshader
-    '';
 
   passthru.tests = lib.optionalAttrs (!stdenv.hostPlatform.isDarwin) {
     kaleido = callPackage ./tests.nix { };
@@ -107,13 +131,7 @@ buildPythonPackage rec {
     description = "Fast static image export for web-based visualization libraries with zero dependencies";
     homepage = "https://github.com/plotly/Kaleido";
     changelog = "https://github.com/plotly/Kaleido/releases";
-    platforms = [
-      "x86_64-linux"
-      "x86_64-darwin"
-      "aarch64-linux"
-      "aarch64-darwin"
-    ];
-    sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ]; # Trust me, I'm not happy. But after literal hours of trying to reverse-engineer their build system and getting nowhere, I'll use the stupid binaries >:(
+    platforms = lib.platforms.all;
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ pandapip1 ];
   };
