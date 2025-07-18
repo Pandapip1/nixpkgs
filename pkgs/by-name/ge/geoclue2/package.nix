@@ -45,6 +45,8 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-LwL1WtCdHb/NwPr3/OLISwaAwplhJwiZT9vUdX29Bbs=";
   };
 
+  separateDebugInfo = true;
+
   patches = [
     ./add-option-for-installation-sysconfdir.patch
   ];
