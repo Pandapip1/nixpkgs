@@ -5,6 +5,7 @@
   eigen,
   gsl,
   imath,
+  kirigami-addons,
   libetonyek,
   libgit2,
   libodfgen,
@@ -31,6 +32,7 @@ mkKdeDerivation {
     eigen
     gsl
     imath
+    kirigami-addons
     libetonyek
     libgit2
     libodfgen
