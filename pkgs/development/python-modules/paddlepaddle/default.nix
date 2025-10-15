@@ -7,20 +7,30 @@
   fetchpatch,
   cmake,
   zlib,
+  glog,
+  eigen,
   setuptools,
   cudaPackages,
   addDriverRunpath,
+  nlohmann_json,
+  yaml-cpp,
+  jinja2,
   pytestCheckHook,
   httpx,
   numpy,
+  blas,
+  pybind11,
+  pyyaml,
   protobuf,
   pillow,
   decorator,
   astor,
   opt-einsum,
   typing-extensions,
+  pkg-config,
   nix-update-script,
   config,
+  oneAPISupport ? false,
   cudaSupport ? config.cudaSupport or false,
   rocmSupport ? config.rocmSupport or false,
   avx2Support ? stdenv.hostPlatform.avx2Support or false,
@@ -32,39 +42,20 @@ buildPythonPackage rec {
   pyproject = true;
 
   src = fetchFromGitHub {
-    owner = "PaddlePaddle";
+    owner = "Pandapip1";
     repo = "Paddle";
-    tag = "v${version}";
-    hash = "sha256-LhchfdnsXk718v0z5wNVQLJYBlnBgqlbiEpDdmdQN3U=";
+    rev = "93ecf3d26e5a89bb3250fe08572fab29ee494d95";
+    hash = "sha256-dxF/8x7olEnWplg7MGpv+hLh1OgwlEopQmHtqY+5a2Y=";
   };
 
-  patches = [
-    # Backport fix for use of old CMake behavior
-    (fetchpatch {
-      url = "https://github.com/PaddlePaddle/Paddle/commit/01edb453af3806410971c20148c93e813c40b7af.patch";
-      hash = "sha256-OJu9fLIiNYRAHtcpzLDMQUZ4zWPLFX0odjjGN7/IHSQ=";
-    })
-  ];
-
-  postPatch = ''
-    cat > cmake/version.cmake << EOF
-    function(version version_file)
-      file(
-        WRITE ''${version_file}
-        "Paddle version: ''${PADDLE_VERSION}\n"
-        "Nixpkgs path: ${pkgs.path}\n")
-    endfunction()
-    EOF
-    cat > cmake/third_party.cmake << EOF
-    include(ExternalProject)
-    EOF
-    substituteInPlace CMakeLists.txt \
-      --replace-fail "find_package(Git REQUIRED)" ""
-  '';
-
+  # TODO: Should cmake and pkg-config be in nativebuild or build-system?
   build-system = [
     setuptools
+    pkg-config
     cmake
+    pyyaml
+    pybind11
+    jinja2
   ];
   dependencies = [
     httpx
@@ -80,7 +71,14 @@ buildPythonPackage rec {
     addDriverRunpath
   ];
   buildInputs = [
+    blas
+    pkgs.gflags
+    glog
+    pkgs.protobuf
     zlib
+    eigen
+    nlohmann_json
+    yaml-cpp
   ]
   ++ lib.optionals cudaSupport (
     with cudaPackages;
@@ -89,10 +87,15 @@ buildPythonPackage rec {
       cudatoolkit.out
       cudnn
     ]
-  );
+  )
+  ++ lib.optionals oneAPISupport [
+    pkgs.mkl
+  ];
   nativeCheckInputs = [
     pytestCheckHook
   ];
+
+  strictDeps = true;
 
   cmakeFlags = [
     (lib.cmakeFeature "PADDLE_VERSION" version)
@@ -105,6 +108,8 @@ buildPythonPackage rec {
     (lib.cmakeBool "WITH_MUSL" (stdenv.hostPlatform.libc == "musl"))
     (lib.cmakeBool "WITH_PIP_CUDA_LIBRARIES" false)
     (lib.cmakeBool "WITH_PIP_TENSORRT" false)
+    (lib.cmakeBool "WITH_MKL" oneAPISupport)
+    (lib.cmakeBool "WITH_ONEMKL" oneAPISupport)
   ];
 
   pythonImportsCheck = [ "paddle" ];
