@@ -1,18 +1,16 @@
 {
-  config,
   lib,
   stdenv,
+  pkgs,
   buildPythonPackage,
-  fetchPypi,
-  python,
-  pythonOlder,
-  pythonAtLeast,
+  fetchFromGitHub,
+  fetchpatch,
+  cmake,
   zlib,
   setuptools,
-  cudaSupport ? config.cudaSupport or false,
   cudaPackages,
   addDriverRunpath,
-  # runtime dependencies
+  pytestCheckHook,
   httpx,
   numpy,
   protobuf,
@@ -21,50 +19,54 @@
   astor,
   opt-einsum,
   typing-extensions,
+  nix-update-script,
+  config,
+  cudaSupport ? config.cudaSupport or false,
+  rocmSupport ? config.rocmSupport or false,
+  avx2Support ? stdenv.hostPlatform.avx2Support or false,
 }:
 
-let
-  pname = "paddlepaddle" + lib.optionalString cudaSupport "-gpu";
-  version = if cudaSupport then "2.6.2" else "3.0.0";
-  format = "wheel";
-  pyShortVersion = "cp${builtins.replaceStrings [ "." ] [ "" ] python.pythonVersion}";
-  cpuOrGpu = if cudaSupport then "gpu" else "cpu";
-  allHashAndPlatform = import ./binary-hashes.nix;
-  hash =
-    allHashAndPlatform."${stdenv.hostPlatform.system}"."${cpuOrGpu}"."${pyShortVersion}"
-      or (throw "${pname} has no binary-hashes.nix entry for '${stdenv.hostPlatform.system}.${cpuOrGpu}.${pyShortVersion}' attribute");
-  platform = allHashAndPlatform."${stdenv.hostPlatform.system}".platform;
-  src = fetchPypi {
-    inherit
-      version
-      format
-      hash
-      platform
-      ;
-    pname = builtins.replaceStrings [ "-" ] [ "_" ] pname;
-    dist = pyShortVersion;
-    python = pyShortVersion;
-    abi = pyShortVersion;
+buildPythonPackage rec {
+  pname = "paddlepaddle";
+  version = "3.2.0";
+  pyproject = true;
+
+  src = fetchFromGitHub {
+    owner = "PaddlePaddle";
+    repo = "Paddle";
+    tag = "v${version}";
+    hash = "sha256-LhchfdnsXk718v0z5wNVQLJYBlnBgqlbiEpDdmdQN3U=";
   };
-in
-buildPythonPackage {
-  inherit
-    pname
-    version
-    format
-    src
-    ;
 
-  disabled =
-    if cudaSupport then
-      (pythonOlder "3.11" || pythonAtLeast "3.13")
-    else
-      (pythonOlder "3.12" || pythonAtLeast "3.14");
+  patches = [
+    # Backport fix for use of old CMake behavior
+    (fetchpatch {
+      url = "https://github.com/PaddlePaddle/Paddle/commit/01edb453af3806410971c20148c93e813c40b7af.patch";
+      hash = "sha256-OJu9fLIiNYRAHtcpzLDMQUZ4zWPLFX0odjjGN7/IHSQ=";
+    })
+  ];
 
-  nativeBuildInputs = [ addDriverRunpath ];
+  postPatch = ''
+    cat > cmake/version.cmake << EOF
+    function(version version_file)
+      file(
+        WRITE ''${version_file}
+        "Paddle version: ''${PADDLE_VERSION}\n"
+        "Nixpkgs path: ${pkgs.path}\n")
+    endfunction()
+    EOF
+    cat > cmake/third_party.cmake << EOF
+    include(ExternalProject)
+    EOF
+    substituteInPlace CMakeLists.txt \
+      --replace-fail "find_package(Git REQUIRED)" ""
+  '';
 
-  dependencies = [
+  build-system = [
     setuptools
+    cmake
+  ];
+  dependencies = [
     httpx
     numpy
     protobuf
@@ -74,54 +76,48 @@ buildPythonPackage {
     opt-einsum
     typing-extensions
   ];
+  nativeBuildInputs = [
+    addDriverRunpath
+  ];
+  buildInputs = [
+    zlib
+  ]
+  ++ lib.optionals cudaSupport (
+    with cudaPackages;
+    [
+      cudatoolkit.lib
+      cudatoolkit.out
+      cudnn
+    ]
+  );
+  nativeCheckInputs = [
+    pytestCheckHook
+  ];
+
+  cmakeFlags = [
+    (lib.cmakeFeature "PADDLE_VERSION" version)
+    (lib.cmakeBool "WITH_GPU" (cudaSupport || stdenv.hostPlatform.isDarwin))
+    (lib.cmakeBool "WITH_NCCL" cudaSupport)
+    (lib.cmakeBool "CINN_WITH_CUDNN" cudaSupport)
+    (lib.cmakeBool "WITH_ROCM" rocmSupport)
+    (lib.cmakeBool "WITH_RCCL" rocmSupport)
+    (lib.cmakeBool "WITH_AVX" avx2Support)
+    (lib.cmakeBool "WITH_MUSL" (stdenv.hostPlatform.libc == "musl"))
+    (lib.cmakeBool "WITH_PIP_CUDA_LIBRARIES" false)
+    (lib.cmakeBool "WITH_PIP_TENSORRT" false)
+  ];
 
   pythonImportsCheck = [ "paddle" ];
 
-  # no tests
-  doCheck = false;
-
-  postFixup = lib.optionalString stdenv.hostPlatform.isLinux (
-    let
-      libraryPath = lib.makeLibraryPath (
-        [
-          zlib
-          (lib.getLib stdenv.cc.cc)
-        ]
-        ++ lib.optionals cudaSupport (
-          with cudaPackages;
-          [
-            cudatoolkit.lib
-            cudatoolkit.out
-            cudnn
-          ]
-        )
-      );
-    in
-    ''
-      function fixRunPath {
-        p=$(patchelf --print-rpath $1)
-        patchelf --set-rpath "$p:${libraryPath}" $1
-        ${lib.optionalString cudaSupport ''
-          addDriverRunpath $1
-        ''}
-      }
-      fixRunPath $out/${python.sitePackages}/paddle/base/libpaddle.so
-      fixRunPath $out/${python.sitePackages}/paddle/libs/lib*.so
-    ''
-  );
+  passthru.updateScript = nix-update-script { };
 
   meta = {
     description = "Machine Learning Framework from Industrial Practice";
     homepage = "https://github.com/PaddlePaddle/Paddle";
     license = lib.licenses.asl20;
-    maintainers = with lib.maintainers; [ happysalada ];
-    platforms = [
-      "x86_64-linux"
-    ]
-    ++ lib.optionals (!cudaSupport) [
-      "aarch64-linux"
-      "x86_64-darwin"
-      "aarch64-darwin"
+    maintainers = with lib.maintainers; [
+      happysalada
+      pandapip1
     ];
   };
 }
