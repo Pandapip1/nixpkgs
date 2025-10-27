@@ -1214,7 +1214,7 @@ let
           description = "Databricks extension for Visual Studio Code";
           downloadPage = "https://marketplace.visualstudio.com/items?itemName=databricks.databricks";
           homepage = "https://github.com/databricks/databricks-vscode";
-          license = lib.licenses.databricks-license;
+          license = lib.licenses.databricks;
           maintainers = [ lib.maintainers.softinio ];
         };
       };

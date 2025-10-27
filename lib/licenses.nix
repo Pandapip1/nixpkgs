@@ -54,7 +54,6 @@ lib.mapAttrs mkLicense (
         restrictions on corporations apply for both use and redistribution
       */
       free = false;
-      redistributable = false;
     };
 
     activision = {
@@ -103,12 +102,6 @@ lib.mapAttrs mkLicense (
     amazonsl = {
       fullName = "Amazon Software License";
       url = "https://aws.amazon.com/asl/";
-      free = false;
-    };
-
-    amd = {
-      fullName = "AMD License Agreement";
-      url = "https://developer.amd.com/amd-license-agreement/";
       free = false;
     };
 
@@ -328,60 +321,70 @@ lib.mapAttrs mkLicense (
       spdxId = "CC-BY-NC-ND-3.0";
       fullName = "Creative Commons Attribution Non Commercial No Derivative Works 3.0 Unported";
       free = false;
+      redistributable = true;
     };
 
     cc-by-nc-nd-40 = {
       spdxId = "CC-BY-NC-ND-4.0";
       fullName = "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International";
       free = false;
+      redistributable = true;
     };
 
     cc-by-nc-sa-20 = {
       spdxId = "CC-BY-NC-SA-2.0";
       fullName = "Creative Commons Attribution Non Commercial Share Alike 2.0";
       free = false;
+      redistributable = true;
     };
 
     cc-by-nc-sa-25 = {
       spdxId = "CC-BY-NC-SA-2.5";
       fullName = "Creative Commons Attribution Non Commercial Share Alike 2.5";
       free = false;
+      redistributable = true;
     };
 
     cc-by-nc-sa-30 = {
       spdxId = "CC-BY-NC-SA-3.0";
       fullName = "Creative Commons Attribution Non Commercial Share Alike 3.0";
       free = false;
+      redistributable = true;
     };
 
     cc-by-nc-sa-40 = {
       spdxId = "CC-BY-NC-SA-4.0";
       fullName = "Creative Commons Attribution Non Commercial Share Alike 4.0";
       free = false;
+      redistributable = true;
     };
 
     cc-by-nc-30 = {
       spdxId = "CC-BY-NC-3.0";
       fullName = "Creative Commons Attribution Non Commercial 3.0 Unported";
       free = false;
+      redistributable = true;
     };
 
     cc-by-nc-40 = {
       spdxId = "CC-BY-NC-4.0";
       fullName = "Creative Commons Attribution Non Commercial 4.0 International";
       free = false;
+      redistributable = true;
     };
 
     cc-by-nd-30 = {
       spdxId = "CC-BY-ND-3.0";
       fullName = "Creative Commons Attribution-No Derivative Works v3.00";
       free = false;
+      redistributable = true;
     };
 
     cc-by-nd-40 = {
       spdxId = "CC-BY-ND-4.0";
       fullName = "Creative Commons Attribution-No Derivative Works v4.0";
       free = false;
+      redistributable = true;
     };
 
     cc-by-sa-10 = {
@@ -468,6 +471,7 @@ lib.mapAttrs mkLicense (
       fullName = "CockroachDB Community License Agreement";
       url = "https://www.cockroachlabs.com/cockroachdb-community-license/";
       free = false;
+      redistributable = true;
     };
 
     cpal10 = {
@@ -479,6 +483,7 @@ lib.mapAttrs mkLicense (
       fullName = "Commons Clause License";
       url = "https://commonsclause.com/";
       free = false;
+      redistributable = true;
     };
 
     cpl10 = {
@@ -518,8 +523,9 @@ lib.mapAttrs mkLicense (
 
     eapl = {
       fullName = "EPSON AVASYS PUBLIC LICENSE";
-      url = "https://avasys.jp/hp/menu000000700/hpg000000603.htm";
+      url = "https://download.ebz.epson.net/la/linux/AVASYSPL.en.txt";
       free = false;
+      redistributable = true;
     };
 
     ecl20 = {
@@ -542,6 +548,7 @@ lib.mapAttrs mkLicense (
       spdxId = "Elastic-2.0";
       fullName = "Elastic License 2.0";
       free = false;
+      redistributable = true;
     };
 
     epl10 = {
@@ -604,6 +611,12 @@ lib.mapAttrs mkLicense (
       fullName = "Floodgap Free Software License";
       url = "https://www.floodgap.com/software/ffsl/license.html";
       free = false;
+      # If you choose to publicly redistribute this package or create a derivative work
+      # based on this package, you must make it available without any purchase or rental
+      # fee of any kind.
+      #
+      # Nixpkgs satisfies this requirement.
+      redistributable = false;
     };
 
     fontException = {
@@ -648,6 +661,8 @@ lib.mapAttrs mkLicense (
       fullName = "GeoGebra Non-Commercial License Agreement";
       url = "https://www.geogebra.org/license";
       free = false;
+      # You are free to copy, distribute and transmit GeoGebra for non-commercial purposes (please see details below).
+      redistributable = true;
     };
 
     generaluser = {
@@ -777,6 +792,12 @@ lib.mapAttrs mkLicense (
       fullName = "INRIA Non-Commercial License Agreement for the CompCert verified compiler";
       url = "https://compcert.org/doc/LICENSE.txt";
       free = false;
+      # 4. Limitations on Distribution: If you distribute the Software or any
+      # derivative works of the Software, you will distribute them under
+      # the same terms and conditions as in this License, and you will not
+      # grant other rights to the Software or derivative works that are
+      # different from those provided by this License.
+      redistributable = true;
     };
 
     inria-icesl = {
@@ -789,12 +810,23 @@ lib.mapAttrs mkLicense (
       fullName = "INRIA Non-Commercial License Agreement for the Zélus compiler";
       url = "https://github.com/INRIA/zelus/raw/829f2b97cba93b0543a9ca0272269e6b8fdad356/LICENSE";
       free = false;
+      # 4. Limitations on Distribution: If you distribute the Software or any
+      # derivative works of the Software, you will distribute them under
+      # the same terms and conditions as in this License, and you will not
+      # grant other rights to the Software or derivative works that are
+      # different from those provided by this License.
+      redistributable = true;
     };
 
     intel-eula = {
       fullName = "Intel End User License Agreement for Developer Tools";
       url = "https://software.intel.com/sites/manageability/AMT_Implementation_and_Reference_Guide/WordDocuments/intelamtsdklicense.htm";
       free = false;
+      # Intel grants You a non-exclusive, worldwide, non-assignable, non-sublicensable, limited right and license under its copyrights, to: 
+      # ...
+      # D.    distribute (directly and through Your distributors, resellers, and other channel partners, if applicable), the Redistributables, including any modifications to or Derivative Works of the Redistributables or any portions made pursuant to Section 2.1.C subject to the following conditions: 
+      # ...
+      redistributable = true;
     };
 
     interbase = {
@@ -821,25 +853,19 @@ lib.mapAttrs mkLicense (
       fullName = "Databricks License";
       url = "https://www.databricks.com/legal/db-license";
       free = false;
+      # You may view, use, copy, modify, publish, and/or distribute the Licensed Materials solely for the purposes of using the Licensed Materials within or connecting to the Databricks Services.
+      redistributable = true;
     };
 
     databricks-dbx = {
       fullName = "DataBricks eXtensions aka dbx License";
       url = "https://github.com/databrickslabs/dbx/blob/743b579a4ac44531f764c6e522dbe5a81a7dc0e4/LICENSE";
       free = false;
-      redistributable = false;
-    };
-
-    databricks-license = {
-      fullName = "Databricks License";
-      url = "https://www.databricks.com/legal/db-license";
-      free = false;
     };
 
     fair = {
       fullName = "Fair License";
       spdxId = "Fair";
-      free = true;
     };
 
     fairsource09 = {
@@ -1053,6 +1079,7 @@ lib.mapAttrs mkLicense (
       spdxId = "NASA-1.3";
       fullName = "NASA Open Source Agreement 1.3";
       free = false;
+      redistributable = true;
     };
 
     ncbiPd = {
@@ -1128,6 +1155,7 @@ lib.mapAttrs mkLicense (
       fullName = "OCamlPro Non Commercial license version 1";
       url = "https://alt-ergo.ocamlpro.com/http/alt-ergo-2.2.0/OCamlPro-Non-Commercial-License.pdf";
       free = false;
+      redistributable = true;
     };
 
     odbl = {
@@ -1305,7 +1333,12 @@ lib.mapAttrs mkLicense (
       spdxId = "SUL-1.0";
       fullName = "Sustainable Use License";
       free = false;
-      redistributable = false; # only free to redistribute "for non-commercial purposes"
+      # While only free to redistribute "for non-commercial purposes", nixpkgs is arguably
+      # non-commercial. My understanding of whether redistributable can be set is if
+      # you have permission to redistribute it at all, regardless of additional requirements.
+      # For example, many free software licenses require attribution when redistributing, this
+      # does not make them unredistributable.
+      redistributable = true;
     };
 
     tcpWrappers = {
@@ -1370,6 +1403,22 @@ lib.mapAttrs mkLicense (
       fullName = "Timescale License Agreegment";
       url = "https://github.com/timescale/timescaledb/blob/main/tsl/LICENSE-TIMESCALE";
       free = false;
+      # While TSL is redistributable in general, the conditions for which
+      # it may be redistributed are not met by nixpkgs. Specifically, it
+      # grants a license to redistribute as long as:
+      #
+      # - You notify Your customers that use of such Timescale Software
+      #   or Derivative Works is subject to this TSL Agreement and You provide to
+      #   each such customer a copy of the most current version of this TSL
+      #   Agreement or a URL from which the most current version of this TSL
+      #   Agreement may be obtained
+      # - the customer is prohibited, either
+      #   contractually or technically, from defining, redefining, or modifying
+      #   the database schema or other structural aspects of database objects,
+      #   such as through use of the Timescale Data Definition Interfaces, in a
+      #   Timescale Database utilized by such Value Added Products or Services.
+      #
+      # It's not obvious how nixpkgs can satisfy the second requirement
     };
 
     tcltk = {

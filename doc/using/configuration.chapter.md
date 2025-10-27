@@ -110,12 +110,12 @@ There are several ways to tweak how Nix handles a package which has been marked 
 
 -   It is also possible to allow and block licenses that are specifically acceptable or not acceptable, using `allowlistedLicenses` and `blocklistedLicenses`, respectively.
 
-    The following example configuration allowlists the licenses `amd` and `wtfpl`:
+    The following example configuration allowlists the licenses `amazonsl` and `wtfpl`:
 
     ```nix
     {
       allowlistedLicenses = with lib.licenses; [
-        amd
+        amazonsl
         wtfpl
       ];
     }
