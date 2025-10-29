@@ -1,40 +1,15 @@
 { lib }:
-let
-  inherit (lib) optionalAttrs;
 
-  mkLicense =
-    lname:
-    {
-      shortName ? lname,
-      # Most of our licenses are Free, explicitly declare unfree additions as such!
-      free ? true,
-      deprecated ? false,
-      spdxId ? null,
-      url ? null,
-      fullName ? null,
-      redistributable ? free,
-    }@attrs:
-    {
-      inherit
-        shortName
-        free
-        deprecated
-        redistributable
-        ;
-    }
-    // optionalAttrs (attrs ? spdxId) {
-      inherit spdxId;
-      url = "https://spdx.org/licenses/${spdxId}.html";
-    }
-    // optionalAttrs (attrs ? url) {
-      inherit url;
-    }
-    // optionalAttrs (attrs ? fullName) {
-      inherit fullName;
-    };
-
-in
-lib.mapAttrs mkLicense (
+/*
+ * THIS DATABASE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THIS DATABASE OR THE USE OR OTHER DEALINGS IN THE DATABASE.
+*/
+lib.mapAttrs lib.license-terms.mkLicense rec (
   {
     /**
       License identifiers from spdx.org where possible.
@@ -45,15 +20,63 @@ lib.mapAttrs mkLicense (
     abstyles = {
       spdxId = "Abstyles";
       fullName = "Abstyles License";
+      terms = with lib.license-terms.conditions; {
+        use = [
+          warrantyDisclaimer
+        ];
+        binaryRedistribution = [
+          copyOfLicense
+          copyrightNotice
+          copyleft
+        ];
+        sourceRedistribution = [
+          copyOfLicense
+          copyrightNotice
+          copyleft
+        ];
+        sourceAvailability = [];
+        modification = [];
+        licenseDistribution = [];
+      };
     };
 
     acsl14 = {
       fullName = "Anti-Capitalist Software License v1.4";
       url = "https://anticapitalist.software/";
-      /**
-        restrictions on corporations apply for both use and redistribution
-      */
-      free = false;
+      terms = with lib.license-terms.conditions; {
+        use = [
+          warrantyDisclaimer
+          liabilityWaiver
+          nonLawEnforcement
+          nonMilitary
+          # it seems commercial use *is* allowed, and the
+          # restrictions have more to do with how
+          # organizations are structured
+          otherDiscriminationGroups
+        ];
+        binaryRedistribution = [
+          copyOfLicense
+          copyrightNotice
+          modification
+          nonLawEnforcement
+          nonMilitary
+          otherDiscriminationGroups
+        ];
+        sourceRedistribution = [
+          copyOfLicense
+          copyrightNotice
+          nonLawEnforcement
+          nonMilitary
+          otherDiscriminationGroups
+        ];
+        sourceAvailability = [];
+        modification = [
+          nonLawEnforcement
+          nonMilitary
+          otherDiscriminationGroups
+        ];
+        licenseDistribution = [];
+      };
     };
 
     activision = {
