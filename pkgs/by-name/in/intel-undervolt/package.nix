@@ -17,6 +17,7 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   strictDeps = true;
+  separateDebugInfo = true;
 
   installPhase = ''
     runHook preInstall
