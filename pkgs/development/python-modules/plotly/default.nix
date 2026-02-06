@@ -56,6 +56,8 @@ buildPythonPackage rec {
 
   env.SKIP_NPM = true;
 
+  strictDeps = true;
+
   build-system = [
     setuptools
     jupyter-packaging
