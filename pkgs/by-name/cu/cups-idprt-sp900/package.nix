@@ -21,6 +21,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   };
   sourceRoot = "idprt_sp900_printer_linux_driver_v${finalAttrs.version}/idprt_sp900_printer_linux_driver_v${finalAttrs.version}"; # >:|
 
+  strictDeps = true;
   buildInputs = [
     cups
     e2fsprogs
