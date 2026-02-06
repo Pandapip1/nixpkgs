@@ -40,6 +40,8 @@ let
         --replace-fail 'Exec=''${Platform.resolvedExecutable}' "Exec=localsend_app"
     '';
 
+    strictDeps = true;
+
     nativeBuildInputs = [
       copyDesktopItems
     ];
@@ -97,6 +99,8 @@ let
       url = "https://github.com/localsend/localsend/releases/download/v${version}/LocalSend-${version}.dmg";
       hash = "sha256-/fGkLuE+uf3WrpTcWIOYHooJWZ51i94j9uZ3xPq1yTw=";
     };
+
+    strictDeps = true;
 
     nativeBuildInputs = [
       undmg
