@@ -17,6 +17,7 @@ stdenvNoCC.mkDerivation {
     hash = "sha256-fmKDRa6NOXMM6IuxRK8sjToGhdPiHO6ZdfUVvR1KKb0=";
   };
 
+  strictDeps = true;
   buildInputs = [ cups ];
   nativeBuildInputs = [
     autoPatchelfHook
