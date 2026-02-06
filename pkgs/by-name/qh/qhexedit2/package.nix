@@ -22,6 +22,8 @@ stdenv.mkDerivation (finalAttrs: {
     find . -type f -exec sed -i 's/QPalette::Background/QPalette::Window/g' {} +
   '';
 
+  strictDeps = true;
+
   nativeBuildInputs = [
     qt6.qmake
     qt6.wrapQtAppsHook
