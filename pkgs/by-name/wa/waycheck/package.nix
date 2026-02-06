@@ -25,6 +25,7 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   strictDeps = true;
+  separateDebugInfo = true;
 
   nativeBuildInputs = [
     meson
