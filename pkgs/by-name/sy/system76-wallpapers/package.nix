@@ -23,6 +23,7 @@ stdenvNoCC.mkDerivation {
     cp ${./Makefile} Makefile
   '';
 
+  strictDeps = true;
   nativeBuildInputs = [ imagemagick ];
 
   makeFlags = [ "prefix=$(out)" ];
