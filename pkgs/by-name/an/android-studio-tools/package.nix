@@ -26,6 +26,8 @@ stdenvNoCC.mkDerivation {
     done
   '';
 
+  strictDeps = true;
+
   nativeBuildInputs = [ makeWrapper ];
 
   dontConfigure = true;
