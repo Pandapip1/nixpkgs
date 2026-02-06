@@ -26,6 +26,8 @@ buildPythonPackage rec {
     ./numpy-2.0-compat.patch
   ];
 
+  strictDeps = true;
+
   propagatedBuildInputs = [ numpy ];
 
   nativeCheckInputs = [
