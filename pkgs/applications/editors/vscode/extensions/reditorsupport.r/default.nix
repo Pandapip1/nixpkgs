@@ -27,7 +27,7 @@ vscode-utils.buildVscodeMarketplaceExtension {
     jq '.contributes.configuration.properties."r.rpath.linux".default = "${lib.getExe' R "R"}"' package.json | sponge package.json
     jq '.contributes.configuration.properties."r.rterm.mac".default = "${lib.getExe radian}"' package.json | sponge package.json
     jq '.contributes.configuration.properties."r.rterm.linux".default = "${lib.getExe radian}"' package.json | sponge package.json
-    jq '.contributes.configuration.properties."r.libPaths".default = [ "${languageserver}/library" ]' package.json | sponge package.json
+    jq '.contributes.configuration.properties."r.libPaths".default = [ "${languageserver.outPath}/library" ]' package.json | sponge package.json
   '';
   meta = {
     changelog = "https://marketplace.visualstudio.com/items/REditorSupport.r/changelog";
