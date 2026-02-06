@@ -25,6 +25,7 @@ stdenvNoCC.mkDerivation {
     runHook postUnpack
   '';
 
+  strictDeps = true;
   nativeBuildInputs = [ autoPatchelfHook ];
   buildInputs = [
     curl
