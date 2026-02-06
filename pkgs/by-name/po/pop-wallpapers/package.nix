@@ -22,6 +22,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     substituteInPlace Makefile --replace-fail "convert" "magick"
   '';
 
+  strictDeps = true;
+
   nativeBuildInputs = [ imagemagick ];
 
   makeFlags = [ "prefix=$(out)" ];
