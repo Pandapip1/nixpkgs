@@ -36,6 +36,8 @@ buildPythonPackage rec {
       --replace 'PAUP_PATH = os.environ.get(metavar.DENDROPY_PAUP_PATH_ENVAR, "paup")' 'PAUP_PATH = os.environ.get(metavar.DENDROPY_PAUP_PATH_ENVAR, "${paupPath}")'
   '';
 
+  strictDeps = true;
+
   nativeCheckInputs = [ pytestCheckHook ];
 
   pythonImportsCheck = [ "dendropy" ];
