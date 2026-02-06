@@ -21,6 +21,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       --replace-fail "set(CURRENT_CPM_VERSION 1.0.0-development-version)" "set(CURRENT_CPM_VERSION ${finalAttrs.version})"
   '';
 
+  strictDeps = true;
+
   dontConfigure = true;
   dontBuild = true;
 
