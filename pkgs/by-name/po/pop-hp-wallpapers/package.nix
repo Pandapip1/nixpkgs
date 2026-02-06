@@ -19,6 +19,8 @@ stdenvNoCC.mkDerivation {
     hash = "sha256-AthVQ9kQO+CvSH1xxz/U6WzAtpcXK1gvRwKyeo0vMSs=";
   };
 
+  strictDeps = true;
+
   nativeBuildInputs = [ imagemagick ];
 
   makeFlags = [ "prefix=$(out)" ];
