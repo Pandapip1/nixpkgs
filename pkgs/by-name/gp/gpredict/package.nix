@@ -45,6 +45,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   ];
 
+  strictDeps = true;
   nativeBuildInputs = [
     pkg-config
     intltool
