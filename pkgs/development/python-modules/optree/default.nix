@@ -23,6 +23,7 @@ buildPythonPackage rec {
 
   dontUseCmakeConfigure = true;
 
+  strictDeps = true;
   propagatedBuildInputs = [ typing-extensions ];
   nativeBuildInputs = [
     setuptools
