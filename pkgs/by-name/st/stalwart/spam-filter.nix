@@ -17,6 +17,8 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-2D/0mnkV4G/Gyr48rbMGTo6uTL7pe+AT+DNKqkBTIbA=";
   };
 
+  strictDeps = true;
+
   buildPhase = ''
     bash ./build.sh
   '';
