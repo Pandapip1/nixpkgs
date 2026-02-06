@@ -38,6 +38,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   strictDeps = true;
+  separateDebugInfo = true;
 
   buildInputs = [
     dbus
