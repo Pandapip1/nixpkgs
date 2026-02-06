@@ -13,9 +13,9 @@ vscode-utils.buildVscodeMarketplaceExtension {
     downloadPage = "https://marketplace.visualstudio.com/items?itemName=REditorSupport.r-syntax";
     homepage = "https://github.com/REditorSupport/vscode-R-syntax";
     license = lib.licenses.mit;
-    maintainers = [
-      lib.maintainers.ivyfanchiang
-      lib.maintainers.pandapip1
+    maintainers = with lib.maintainers; [
+      ivyfanchiang
+      pandapip1
     ];
   };
 }
