@@ -19,6 +19,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoHash = "sha256-Owv0OTbBpsd6xvadVOu3F3JAmo6SPdwzT3MOAP54nPY=";
 
+  strictDeps = true;
   buildInputs = [
     openxr-loader
   ];
