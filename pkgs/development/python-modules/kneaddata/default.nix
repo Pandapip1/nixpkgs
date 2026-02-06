@@ -20,6 +20,7 @@ buildPythonPackage rec {
     hash = "sha256-biZ6lS0a81CBAAhTOb1Ol38/YagLqXA3AbMr2nBmSEw=";
   };
 
+  strictDeps = true;
   nativeCheckInputs = [ unittestCheckHook ];
 
   unittestFlagsArray = [ "kneaddata/tests/ '*.py'" ];
