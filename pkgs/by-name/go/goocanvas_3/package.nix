@@ -40,6 +40,8 @@ stdenv.mkDerivation (finalAttrs: {
     ./gcc14-fix.patch
   ];
 
+  strictDeps = true;
+
   nativeBuildInputs = [
     pkg-config
     gettext
