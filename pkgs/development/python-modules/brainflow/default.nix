@@ -17,6 +17,7 @@ buildPythonPackage {
     ;
 
   pyproject = true;
+  strictDeps = true;
   build-system = [ setuptools ];
 
   dependencies = [
