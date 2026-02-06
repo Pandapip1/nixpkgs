@@ -11,6 +11,7 @@ vscode-utils.buildVscodeMarketplaceExtension {
     description = "VSCode extension that changes the markdown preview to support GitHub markdown features";
     downloadPage = "https://marketplace.visualstudio.com/items?itemName=bierner.github-markdown-preview";
     homepage = "https://github.com/mjbvz/vscode-github-markdown-preview";
+    changelog = "https://github.com/mjbvz/vscode-github-markdown-preview/blob/master/CHANGELOG.md";
     license = lib.licenses.mit;
     maintainers = [ lib.maintainers.pandapip1 ];
   };
