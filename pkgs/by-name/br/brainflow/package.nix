@@ -37,6 +37,8 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.cmakeBool "BUILD_ONNX" buildONNX)
   ];
 
+  strictDeps = true;
+
   buildInputs = [
     dbus
   ]
