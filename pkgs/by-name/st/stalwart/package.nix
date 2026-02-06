@@ -32,6 +32,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoHash = "sha256-jVD11wz9Ab1E9KdNG4kp8Jqm2rJ2aUWuFTAOBga6Fgg=";
 
+  strictDeps = true;
+
   depsBuildBuild = [
     pkg-config
     zstd
