@@ -14,6 +14,8 @@ stdenv.mkDerivation rec {
   pname = "qgroundcontrol";
   version = "4.4.5";
 
+  strictDeps = true;
+
   propagatedBuildInputs = with libsForQt5; [
     qtbase
     qtcharts
