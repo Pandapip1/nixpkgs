@@ -15,6 +15,7 @@ stdenv.mkDerivation rec {
   version = "4.4.5";
 
   strictDeps = true;
+  separateDebugInfo = true;
 
   propagatedBuildInputs = with libsForQt5; [
     qtbase
