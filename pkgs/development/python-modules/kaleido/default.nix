@@ -46,6 +46,7 @@ buildPythonPackage rec {
     ."${stdenv.hostPlatform.system}"
       or (throw "Unsupported system for ${pname}: ${stdenv.hostPlatform.system}");
 
+  strictDeps = true;
   nativeBuildInputs = (lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ]) ++ [
     makeWrapper
   ];
