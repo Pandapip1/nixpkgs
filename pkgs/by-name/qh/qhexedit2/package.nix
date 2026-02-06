@@ -23,6 +23,7 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   strictDeps = true;
+  separateDebugInfo = true;
 
   nativeBuildInputs = [
     qt6.qmake
