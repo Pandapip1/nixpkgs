@@ -20,6 +20,7 @@ stdenvNoCC.mkDerivation {
     hash = "sha256-P3AKSqCh5onOv0itJayEJ6P5pmlkOwOh1OtUjg40BRw=";
   };
 
+  strictDeps = true;
   buildInputs = [
     cups
     e2fsprogs
