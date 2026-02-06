@@ -38,6 +38,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
     substituteInPlace Trunk.toml --replace-fail "npx tailwindcss" "tailwindcss"
   '';
 
+
+  strictDeps = true;
   nativeBuildInputs = [
     binaryen
     llvmPackages.bintools-unwrapped
