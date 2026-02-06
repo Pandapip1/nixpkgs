@@ -26,6 +26,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   strictDeps = true;
+  separateDebugInfo = true;
 
   nativeBuildInputs = [
     pkg-config
