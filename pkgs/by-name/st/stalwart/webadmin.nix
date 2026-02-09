@@ -56,13 +56,21 @@ rustPlatform.buildRustPackage (finalAttrs: {
   NODE_PATH = "$npmDeps";
 
   buildPhase = ''
+    runHook preBuild
+
     trunk build --offline --frozen --release
+
+    runHook postBuild
   '';
 
   installPhase = ''
+    runHook preInstall
+
     cd dist
     mkdir -p $out
     zip -r $out/webadmin.zip *
+
+    runHook postInstall
   '';
 
   passthru = {
