@@ -20,12 +20,20 @@ stdenv.mkDerivation (finalAttrs: {
   strictDeps = true;
 
   buildPhase = ''
+    runHook preBuild
+
     bash ./build.sh
+
+    runHook postBuild
   '';
 
   installPhase = ''
+    runHook preInstall
+
     mkdir -p $out
     cp spam-filter.toml $out/
+
+    runHook postInstall
   '';
 
   passthru = {
