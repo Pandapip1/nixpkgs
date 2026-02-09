@@ -1285,6 +1285,13 @@ lib.mapAttrs mkLicense (
       fullName = "Ruby License";
     };
 
+    sel = {
+      fullName = "Stalwart Enterprise License 1.0 (SELv1) Agreement";
+      url = "https://github.com/stalwartlabs/stalwart/blob/main/LICENSES/LicenseRef-SEL.txt";
+      free = false;
+      redistributable = false;
+    };
+
     sendmail = {
       spdxId = "Sendmail";
       fullName = "Sendmail License";
