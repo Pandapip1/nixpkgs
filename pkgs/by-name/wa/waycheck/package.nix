@@ -64,6 +64,6 @@ stdenv.mkDerivation (finalAttrs: {
       pandapip1
     ];
     mainProgram = "waycheck";
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.unix;
   };
 })
