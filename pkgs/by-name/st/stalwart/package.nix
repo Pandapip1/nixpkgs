@@ -74,8 +74,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
   env = {
     OPENSSL_NO_VENDOR = true;
     ZSTD_SYS_USE_PKG_CONFIG = true;
-    ROCKSDB_INCLUDE_DIR = "${rocksdb}/include";
-    ROCKSDB_LIB_DIR = "${rocksdb}/lib";
+    ROCKSDB_INCLUDE_DIR = lib.makeIncludePath [ rocksdb ];
+    ROCKSDB_LIB_DIR = lib.makeLibraryPath [ rocksdb ];
   }
   //
     lib.optionalAttrs
