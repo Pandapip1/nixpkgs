@@ -47,6 +47,7 @@ stdenv.mkDerivation rec {
   # warnings on `boringssl`.
   env.NIX_CFLAGS_COMPILE = "-Wno-error";
 
+  separateDebugInfo = true;
   strictDeps = true;
   __structuredAttrs = true;
 
