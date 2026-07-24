@@ -1,5 +1,6 @@
 { lib, curl-impersonate }:
 
+# nixpkgs-update: no auto update
 curl-impersonate.override {
   c-aresSupport = true;
 }
