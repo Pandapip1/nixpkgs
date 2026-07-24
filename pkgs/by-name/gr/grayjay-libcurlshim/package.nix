@@ -2,7 +2,7 @@
   lib,
   stdenv,
   grayjay,
-  curl-impersonate-with-ares,
+  curl-impersonateFull,
 }:
 
 stdenv.mkDerivation {
@@ -15,15 +15,15 @@ stdenv.mkDerivation {
 
   dontConfigure = true;
 
-  buildInputs = [ curl-impersonate-with-ares ];
+  buildInputs = [ curl-impersonateFull ];
   buildPhase = ''
     runHook preBuild
 
     $CC -shared -fPIC \
-      -I ${lib.getDev curl-impersonate-with-ares}/include \
+      -I ${lib.getDev curl-impersonateFull}/include \
       "curlshim.c" \
       -o libcurlshim.so \
-      -L ${lib.getLib curl-impersonate-with-ares}/lib -lcurl-impersonate
+      -L ${lib.getLib curl-impersonateFull}/lib -lcurl-impersonate
 
     runHook postBuild
   '';
