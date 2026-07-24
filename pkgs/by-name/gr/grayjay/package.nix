@@ -4,6 +4,7 @@
   dotnetCorePackages,
   buildNpmPackage,
   lib,
+  stdenv,
   ffmpeg,
   curl-impersonate,
   libsodium,
