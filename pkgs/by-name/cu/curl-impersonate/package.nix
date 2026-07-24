@@ -127,7 +127,7 @@ stdenv.mkDerivation rec {
   postPatch = ''
     substituteInPlace Makefile.in \
       --replace-fail "-lc++" "-lstdc++"
-    
+
     ${lib.optionalString c-aresSupport ''
       substituteInPlace Makefile.in \
         --replace-fail \
