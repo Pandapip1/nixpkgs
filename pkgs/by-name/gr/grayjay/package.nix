@@ -226,6 +226,7 @@ buildDotnetModule (finalAttrs: {
       "x86_64-linux"
       "aarch64-linux"
     ];
+    sourceProvenance = with lib.sourceTypes; [ fromSource binaryNativeCode ];
     mainProgram = "Grayjay";
   };
 })
