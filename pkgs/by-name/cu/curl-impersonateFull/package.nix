@@ -1,4 +1,4 @@
-{ curl-impersonate }:
+{ lib, curl-impersonate }:
 
 curl-impersonate.override {
   c-aresSupport = true;
