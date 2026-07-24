@@ -44,6 +44,7 @@
   wrapGAppsHook3,
   _experimental-update-script-combinators,
   grayjay-frontend,
+  grayjay-libcurlshim,
 }:
 let
   version = "17";
@@ -136,9 +137,10 @@ buildDotnetModule (finalAttrs: {
     ln -s /tmp/grayjay-cef-launch $out/lib/grayjay/cef/launch
 
     # Unvendor most stuff
-    rm -f $out/lib/grayjay/{Portable,ffmpeg,libcurl-impersonate.so,libsodium.so,libe_sqlite3.so}
+    rm -f $out/lib/grayjay/{Portable,ffmpeg,libcurl-impersonate.so,libcurlshim.so,libsodium.so,libe_sqlite3.so}
     ln -s ${lib.getExe ffmpeg} $out/lib/grayjay/ffmpeg
     ln -s ${curl-impersonate}/lib/libcurl-impersonate${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libcurl-impersonate.so
+    ln -s ${grayjay-libcurlshim}/lib/libcurlshim${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libcurl-impersonate.so
     ln -s ${libsodium}/lib/libsodium${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libsodium.so
     ln -s ${sqlite.out}/lib/libsqlite3${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libe_sqlite3.so
 
