@@ -4,6 +4,11 @@
   dotnetCorePackages,
   buildNpmPackage,
   lib,
+  stdenv,
+  ffmpeg,
+  curl-impersonate,
+  libsodium,
+  sqlite,
   libz,
   icu,
   openssl,
@@ -84,6 +89,7 @@ buildDotnetModule (finalAttrs: {
     nss
     icu
     krb5
+    curl-impersonate
   ];
 
   nativeBuildInputs = [
@@ -139,11 +145,19 @@ buildDotnetModule (finalAttrs: {
   '';
 
   postInstall = ''
-    chmod +x $out/lib/grayjay/cef/dotcefnative
-    chmod +x $out/lib/grayjay/ffmpeg
-    rm $out/lib/grayjay/Portable
     ln -s /tmp/grayjay-launch $out/lib/grayjay/launch
     ln -s /tmp/grayjay-cef-launch $out/lib/grayjay/cef/launch
+
+    # Unvendor most stuff
+    rm -f $out/lib/grayjay/{Portable,ffmpeg,libcurl-impersonate.so,libsodium.so,libe_sqlite3.so}
+    ln -s ${lib.getExe ffmpeg} $out/lib/grayjay/ffmpeg
+    ln -s ${curl-impersonate}/lib/libcurl-impersonate${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libcurl-impersonate.so
+    ln -s ${libsodium}/lib/libsodium${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libsodium.so
+    ln -s ${sqlite.out}/lib/libsqlite3${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libe_sqlite3.so
+
+    # CEF is still vendored for now
+    chmod +x $out/lib/grayjay/cef/dotcefnative
+
     mkdir -p $out/share/icons/hicolor/scalable/apps
     ln -s $out/lib/grayjay/grayjay.png $out/share/icons/hicolor/scalable/apps/grayjay.png
   '';
@@ -208,7 +222,10 @@ buildDotnetModule (finalAttrs: {
       samfundev
       pandapip1
     ];
-    platforms = [ "x86_64-linux" ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+    ];
     mainProgram = "Grayjay";
   };
 })
