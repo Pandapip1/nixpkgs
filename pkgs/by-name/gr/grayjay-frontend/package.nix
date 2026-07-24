@@ -12,6 +12,8 @@ buildNpmPackage {
 
   sourceRoot = "source/Grayjay.Desktop.Web";
 
+  __structuredAttrs = true;
+  strictDeps = true;
   npmBuildScript = "build";
   npmDepsHash = "sha256-3yJIPkuEvkFL9Wb4y/r0yEULQbXx/wHqicFBLzOPj68=";
 
