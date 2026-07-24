@@ -139,10 +139,10 @@ buildDotnetModule (finalAttrs: {
     # Unvendor most stuff
     rm -f $out/lib/grayjay/{Portable,ffmpeg,libcurl-impersonate.so,libcurlshim.so,libsodium.so,libe_sqlite3.so}
     ln -s ${lib.getExe ffmpeg} $out/lib/grayjay/ffmpeg
-    ln -s ${curl-impersonate}/lib/libcurl-impersonate${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libcurl-impersonate.so
-    ln -s ${grayjay-libcurlshim}/lib/libcurlshim${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libcurl-impersonate.so
-    ln -s ${libsodium}/lib/libsodium${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libsodium.so
-    ln -s ${sqlite.out}/lib/libsqlite3${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libe_sqlite3.so
+    ln -s ${lib.getLib curl-impersonate}/lib/libcurl-impersonate${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libcurl-impersonate.so
+    ln -s ${lib.getLib grayjay-libcurlshim}/lib/libcurlshim${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libcurlshim.so
+    ln -s ${lib.getLib libsodium}/lib/libsodium${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libsodium.so
+    ln -s ${lib.getLib sqlite.out}/lib/libsqlite3${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libe_sqlite3.so
 
     # CEF is still vendored for now
     chmod +x $out/lib/grayjay/cef/dotcefnative
