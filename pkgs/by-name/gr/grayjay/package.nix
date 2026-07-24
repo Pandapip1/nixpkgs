@@ -4,7 +4,7 @@
   dotnetCorePackages,
   lib,
   ffmpeg,
-  curl-impersonate,
+  curl-impersonate-with-ares,
   libsodium,
   sqlite,
   libz,
@@ -77,7 +77,7 @@ buildDotnetModule (finalAttrs: {
     nss
     icu
     krb5
-    curl-impersonate
+    curl-impersonate-with-ares
   ];
 
   nativeBuildInputs = [
@@ -139,7 +139,7 @@ buildDotnetModule (finalAttrs: {
     # Unvendor most stuff
     rm -f $out/lib/grayjay/{Portable,ffmpeg,libcurl-impersonate.so,libcurlshim.so,libsodium.so,libe_sqlite3.so,FUTO.Updater.Client}
     ln -s ${lib.getExe ffmpeg} $out/lib/grayjay/ffmpeg
-    ln -s ${getLibrary curl-impersonate "curl-impersonate"} $out/lib/grayjay/libcurl-impersonate.so
+    ln -s ${getLibrary curl-impersonate-with-ares "curl-impersonate"} $out/lib/grayjay/libcurl-impersonate.so
     ln -s ${getLibrary grayjay-libcurlshim "curlshim"} $out/lib/grayjay/libcurlshim.so
     ln -s ${getLibrary libsodium "sodium"} $out/lib/grayjay/libsodium.so
     ln -s ${getLibrary sqlite "sqlite3"} $out/lib/grayjay/libe_sqlite3.so
