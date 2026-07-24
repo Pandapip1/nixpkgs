@@ -220,7 +220,10 @@ buildDotnetModule (finalAttrs: {
       kruziikrel13
       samfundev
     ];
-    platforms = [ "x86_64-linux" ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+    ];
     mainProgram = "Grayjay";
   };
 })
