@@ -40,8 +40,6 @@ stdenv.mkDerivation {
   meta = {
     description = "curl-impersonate shim used by Grayjay";
     homepage = "https://grayjay.app/desktop/";
-    license = lib.licenses.sfl; # Assumed to be the same license as GrayJay
-    maintainers = with lib.maintainers; [ pandapip1 ];
-    platforms = lib.platforms.all;
+    inherit (grayjay.meta) license maintainers platforms;
   };
 }
