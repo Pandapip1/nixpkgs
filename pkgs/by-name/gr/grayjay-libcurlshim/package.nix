@@ -15,6 +15,9 @@ stdenv.mkDerivation {
 
   dontConfigure = true;
 
+  __structuredAttrs = true;
+  strictDeps = true;
+  separateDebugInfo = true;
   buildInputs = [ curl-impersonateFull ];
   buildPhase = ''
     runHook preBuild
