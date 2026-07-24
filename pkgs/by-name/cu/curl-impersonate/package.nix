@@ -25,7 +25,7 @@
   go,
   p11-kit,
   nixosTests,
-  c-aresSupport ? true,
+  c-aresSupport ? false,
 }:
 stdenv.mkDerivation rec {
   pname = "curl-impersonate";
