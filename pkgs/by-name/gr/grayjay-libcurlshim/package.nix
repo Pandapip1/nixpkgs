@@ -39,7 +39,6 @@ stdenv.mkDerivation {
 
   meta = {
     description = "curl-impersonate shim used by Grayjay";
-    homepage = "https://grayjay.app/desktop/";
-    inherit (grayjay.meta) license maintainers platforms;
+    inherit (grayjay.meta) homepage license maintainers platforms;
   };
 }
