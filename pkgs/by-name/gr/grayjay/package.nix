@@ -222,7 +222,10 @@ buildDotnetModule (finalAttrs: {
       samfundev
       pandapip1
     ];
-    platforms = [ "x86_64-linux" ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+    ];
     sourceProvenance = with lib.sourceTypes; [ fromSource binaryNativeCode ];
     mainProgram = "Grayjay";
   };
