@@ -137,7 +137,7 @@ buildDotnetModule (finalAttrs: {
     ln -s /tmp/grayjay-cef-launch $out/lib/grayjay/cef/launch
 
     # Unvendor most stuff
-    rm -f $out/lib/grayjay/{Portable,ffmpeg,libcurl-impersonate.so,libcurlshim.so,libsodium.so,libe_sqlite3.so}
+    rm -f $out/lib/grayjay/{Portable,ffmpeg,libcurl-impersonate.so,libcurlshim.so,libsodium.so,libe_sqlite3.so,FUTO.Updater.Client}
     ln -s ${lib.getExe ffmpeg} $out/lib/grayjay/ffmpeg
     ln -s ${getLibrary curl-impersonate "curl-impersonate"} $out/lib/grayjay/libcurl-impersonate.so
     ln -s ${getLibrary grayjay-libcurlshim "curlshim"} $out/lib/grayjay/libcurlshim.so
