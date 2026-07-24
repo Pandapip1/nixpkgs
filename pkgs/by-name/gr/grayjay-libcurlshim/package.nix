@@ -19,7 +19,6 @@ stdenv.mkDerivation {
   buildPhase = ''
     runHook preBuild
 
-    ls -la .
     $CC -shared -fPIC \
       -I ${lib.getDev curl-impersonate}/include \
       "curlshim.c" \
