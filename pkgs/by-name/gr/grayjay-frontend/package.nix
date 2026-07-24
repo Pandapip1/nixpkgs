@@ -23,6 +23,11 @@ buildNpmPackage {
 
   meta = {
     description = "Grayjay frontend subpackage";
-    inherit (grayjay.meta) homepage license maintainers platforms;
+    inherit (grayjay.meta)
+      homepage
+      license
+      maintainers
+      platforms
+      ;
   };
 }
