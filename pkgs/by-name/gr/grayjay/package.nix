@@ -3,7 +3,6 @@
   fetchFromGitLab,
   dotnetCorePackages,
   lib,
-  stdenv,
   ffmpeg,
   curl-impersonate,
   libsodium,
@@ -57,6 +56,7 @@ let
     fetchSubmodules = true;
     fetchLFS = true;
   };
+  getLibrary = pkg: libnm: "${lib.getLib pkg}/lib/lib${libnm}${pkg.drvAttrs.stdenv.hostPlatform.extensions.sharedLibrary}";
 in
 buildDotnetModule (finalAttrs: {
   pname = "grayjay";
@@ -139,10 +139,10 @@ buildDotnetModule (finalAttrs: {
     # Unvendor most stuff
     rm -f $out/lib/grayjay/{Portable,ffmpeg,libcurl-impersonate.so,libcurlshim.so,libsodium.so,libe_sqlite3.so}
     ln -s ${lib.getExe ffmpeg} $out/lib/grayjay/ffmpeg
-    ln -s ${lib.getLib curl-impersonate}/lib/libcurl-impersonate${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libcurl-impersonate.so
-    ln -s ${lib.getLib grayjay-libcurlshim}/lib/libcurlshim${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libcurlshim.so
-    ln -s ${lib.getLib libsodium}/lib/libsodium${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libsodium.so
-    ln -s ${lib.getLib sqlite.out}/lib/libsqlite3${stdenv.hostPlatform.extensions.sharedLibrary} $out/lib/grayjay/libe_sqlite3.so
+    ln -s ${getLibrary curl-impersonate "curl-impersonate"} $out/lib/grayjay/libcurl-impersonate.so
+    ln -s ${getLibrary grayjay-libcurlshim "curlshim"} $out/lib/grayjay/libcurlshim.so
+    ln -s ${getLibrary libsodium "sodium"} $out/lib/grayjay/libsodium.so
+    ln -s ${getLibrary sqlite "sqlite3"} $out/lib/grayjay/libe_sqlite3.so
 
     # CEF is still vendored for now
     chmod +x $out/lib/grayjay/cef/dotcefnative
