@@ -7,6 +7,7 @@
   buildGoModule,
   installShellFiles,
   buildPackages,
+  c-ares,
   zlib,
   zstd,
   sqlite,
@@ -24,6 +25,7 @@
   go,
   p11-kit,
   nixosTests,
+  withAres ? true,
 }:
 stdenv.mkDerivation rec {
   pname = "curl-impersonate";
@@ -78,6 +80,9 @@ stdenv.mkDerivation rec {
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     darwin.ICU
+  ]
+  ++ lib.optionals withAres [
+    c-ares
   ];
 
   configureFlags = [
@@ -85,6 +90,9 @@ stdenv.mkDerivation rec {
       if stdenv.hostPlatform.isDarwin then "/etc/ssl/cert.pem" else "/etc/ssl/certs/ca-certificates.crt"
     }"
     "--with-ca-path=${cacert}/etc/ssl/certs"
+  ]
+  ++ lib.optionals withAres [
+    "--enable-ares"
   ];
 
   buildFlags = [ "build" ];
