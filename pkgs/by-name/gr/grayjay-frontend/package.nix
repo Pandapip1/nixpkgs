@@ -24,6 +24,6 @@ buildNpmPackage {
   meta = {
     description = "curl-impersonate shim used by Grayjay";
     homepage = "https://grayjay.app/desktop/";
-    inherit (grayjay) license maintainers platforms;
+    inherit (grayjay.meta) license maintainers platforms;
   };
 }
