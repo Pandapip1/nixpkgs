@@ -213,6 +213,7 @@ buildDotnetModule (finalAttrs: {
     license = lib.licenses.sfl;
     maintainers = with lib.maintainers; [ samfundev pandapip1 ];
     platforms = [ "x86_64-linux" "aarch64-linux" ];
+    sourceProvenance = with lib.sourceTypes; [ fromSource binaryNativeCode ];
     mainProgram = "Grayjay";
   };
 })
