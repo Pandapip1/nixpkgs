@@ -212,7 +212,7 @@ buildDotnetModule (finalAttrs: {
     homepage = "https://grayjay.app/desktop/";
     license = lib.licenses.sfl;
     maintainers = with lib.maintainers; [ samfundev ];
-    platforms = [ "x86_64-linux" ];
+    platforms = [ "x86_64-linux" "aarch64-linux" ];
     mainProgram = "Grayjay";
   };
 })
