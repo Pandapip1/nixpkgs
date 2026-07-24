@@ -56,7 +56,9 @@ let
     fetchSubmodules = true;
     fetchLFS = true;
   };
-  getLibrary = pkg: libnm: "${lib.getLib pkg}/lib/lib${libnm}${pkg.drvAttrs.stdenv.hostPlatform.extensions.sharedLibrary}";
+  getLibrary =
+    pkg: libnm:
+    "${lib.getLib pkg}/lib/lib${libnm}${pkg.drvAttrs.stdenv.hostPlatform.extensions.sharedLibrary}";
 in
 buildDotnetModule (finalAttrs: {
   pname = "grayjay";
