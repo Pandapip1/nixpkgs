@@ -208,6 +208,7 @@ buildDotnetModule (finalAttrs: {
       samfundev
     ];
     platforms = [ "x86_64-linux" ];
+    sourceProvenance = with lib.sourceTypes; [ fromSource binaryNativeCode ];
     mainProgram = "Grayjay";
   };
 })
