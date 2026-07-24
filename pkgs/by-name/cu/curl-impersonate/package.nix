@@ -80,15 +80,13 @@ stdenv.mkDerivation rec {
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     darwin.ICU
-  ]
-  ++ lib.optional c-aresSupport c-ares;
+  ];
 
   configureFlags = [
     "--with-ca-bundle=${
       if stdenv.hostPlatform.isDarwin then "/etc/ssl/cert.pem" else "/etc/ssl/certs/ca-certificates.crt"
     }"
     "--with-ca-path=${cacert}/etc/ssl/certs"
-    (lib.enableFeature c-aresSupport "ares")
   ];
 
   buildFlags = [ "build" ];
@@ -129,6 +127,13 @@ stdenv.mkDerivation rec {
   postPatch = ''
     substituteInPlace Makefile.in \
       --replace-fail "-lc++" "-lstdc++"
+    
+    ${lib.optionalString c-aresSupport ''
+      substituteInPlace Makefile.in \
+        --replace-fail \
+          'config_flags="$$config_flags --enable-ipv6";' \
+          'config_flags="$$config_flags --enable-ipv6"; config_flags="$$config_flags --enable-ares=${lib.getDev c-ares}";'
+    ''}
   '';
 
   preConfigure = ''
