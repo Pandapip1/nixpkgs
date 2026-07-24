@@ -25,7 +25,7 @@
   go,
   p11-kit,
   nixosTests,
-  withAres ? true,
+  c-aresSupport ? true,
 }:
 stdenv.mkDerivation rec {
   pname = "curl-impersonate";
@@ -81,18 +81,14 @@ stdenv.mkDerivation rec {
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     darwin.ICU
   ]
-  ++ lib.optionals withAres [
-    c-ares
-  ];
+  ++ lib.optional c-aresSupport c-ares;
 
   configureFlags = [
     "--with-ca-bundle=${
       if stdenv.hostPlatform.isDarwin then "/etc/ssl/cert.pem" else "/etc/ssl/certs/ca-certificates.crt"
     }"
     "--with-ca-path=${cacert}/etc/ssl/certs"
-  ]
-  ++ lib.optionals withAres [
-    "--enable-ares"
+    (lib.enableFeature c-aresSupport "ares")
   ];
 
   buildFlags = [ "build" ];
