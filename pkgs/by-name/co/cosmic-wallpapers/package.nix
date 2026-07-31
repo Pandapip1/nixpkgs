@@ -34,7 +34,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   meta = {
     description = "Wallpapers for the COSMIC Desktop Environment";
     homepage = "https://system76.com/cosmic";
-    license = with lib.licenses; [
+    license = with lib.licenses; AND [
       # A_stormy_stellar_nursery_esa_379309.jpg: https://www.esa.int/ESA_Multimedia/Images/2017/06/A_stormy_stellar_nursery
       # webb-inspired-wallpaper-system76.jpg
       cc-by-40
