@@ -13445,7 +13445,7 @@ self: super: with self; {
 
   plover-stroke = callPackage ../development/python-modules/plover-stroke { };
 
-  plover_4 = lib.warnOnInstantiate "plover_4 is outdated and will be dropped after 26.11" (
+  plover_4 = lib.warnOnInstantiate "plover_4 depends on EOL python packages and will be dropped after 26.11" (
     callPackage ../development/python-modules/plover/4.nix {
       inherit (pkgs.libsForQt5) wrapQtAppsHook;
     }
