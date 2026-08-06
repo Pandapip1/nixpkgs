@@ -43,7 +43,6 @@ buildPythonPackage (finalAttrs: {
   build-system = [
     babel
     setuptools
-    # setuptools>=82 dropped pkg_resources, which plover_build_utils/setup.py imports at build time
     standard-pkg-resources
     pyqt5
     wheel
