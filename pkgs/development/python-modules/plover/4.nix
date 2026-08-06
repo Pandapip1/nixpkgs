@@ -22,86 +22,88 @@
   wrapQtAppsHook,
 }:
 
-buildPythonPackage (finalAttrs: {
-  __structuredAttrs = true;
+lib.warnOnInstantiate "plover_4 depends on EOL python packages and will be dropped after 26.11"
+  buildPythonPackage
+  (finalAttrs: {
+    __structuredAttrs = true;
 
-  pname = "plover";
-  version = "4.0.2";
-  pyproject = true;
+    pname = "plover";
+    version = "4.0.2";
+    pyproject = true;
 
-  src = fetchFromGitHub {
-    owner = "opensteno";
-    repo = "plover";
-    tag = "v${finalAttrs.version}";
-    hash = "sha256-VpQT25bl8yPG4J9IwLkhSkBt31Y8BgPJdwa88WlreA8=";
-  };
+    src = fetchFromGitHub {
+      owner = "opensteno";
+      repo = "plover";
+      tag = "v${finalAttrs.version}";
+      hash = "sha256-VpQT25bl8yPG4J9IwLkhSkBt31Y8BgPJdwa88WlreA8=";
+    };
 
-  postPatch = ''
-    sed -i 's/,<77//g' pyproject.toml # pythonRelaxDepsHook doesn't work for this for some reason
-  '';
+    postPatch = ''
+      sed -i 's/,<77//g' pyproject.toml # pythonRelaxDepsHook doesn't work for this for some reason
+    '';
 
-  build-system = [
-    babel
-    setuptools
-    standard-pkg-resources
-    pyqt5
-    wheel
-  ];
-  dependencies = [
-    appdirs
-    evdev
-    pyqt5
-    pyserial
-    plover-stroke
-    rtf-tokenize
-    setuptools
-    standard-pkg-resources
-    wcwidth
-    python-xlib
-  ];
-  optional-dependencies = {
-    gui-qt = [
+    build-system = [
+      babel
+      setuptools
+      standard-pkg-resources
       pyqt5
+      wheel
     ];
-  };
-  nativeBuildInputs = [
-    wrapQtAppsHook
-  ];
-
-  nativeCheckInputs = [
-    pytestCheckHook
-    versionCheckHook
-    pytest-qt
-    mock
-  ];
-
-  # Segfaults?!
-  disabledTestPaths = [ "test/gui_qt/test_dictionaries_widget.py" ];
-
-  postInstall = ''
-    install -Dm 444 linux/plover.desktop $out/share/applications/plover.desktop
-  '';
-
-  preFixup = ''
-    makeWrapperArgs+=("''${qtWrapperArgs[@]}")
-  '';
-
-  dontWrapQtApps = true;
-
-  pythonImportsCheck = [ "plover" ];
-
-  meta = {
-    description = "OpenSteno Plover stenography software";
-    homepage = "https://www.openstenoproject.org/plover/";
-    mainProgram = "plover";
-    maintainers = with lib.maintainers; [
-      twey
-      kovirobi
-      pandapip1
-      ShamrockLee
+    dependencies = [
+      appdirs
+      evdev
+      pyqt5
+      pyserial
+      plover-stroke
+      rtf-tokenize
+      setuptools
+      standard-pkg-resources
+      wcwidth
+      python-xlib
     ];
-    license = lib.licenses.gpl2Plus;
-    platforms = lib.platforms.unix;
-    broken = stdenv.hostPlatform.isDarwin;
-  };
-})
+    optional-dependencies = {
+      gui-qt = [
+        pyqt5
+      ];
+    };
+    nativeBuildInputs = [
+      wrapQtAppsHook
+    ];
+
+    nativeCheckInputs = [
+      pytestCheckHook
+      versionCheckHook
+      pytest-qt
+      mock
+    ];
+
+    # Segfaults?!
+    disabledTestPaths = [ "test/gui_qt/test_dictionaries_widget.py" ];
+
+    postInstall = ''
+      install -Dm 444 linux/plover.desktop $out/share/applications/plover.desktop
+    '';
+
+    preFixup = ''
+      makeWrapperArgs+=("''${qtWrapperArgs[@]}")
+    '';
+
+    dontWrapQtApps = true;
+
+    pythonImportsCheck = [ "plover" ];
+
+    meta = {
+      description = "OpenSteno Plover stenography software";
+      homepage = "https://www.openstenoproject.org/plover/";
+      mainProgram = "plover";
+      maintainers = with lib.maintainers; [
+        twey
+        kovirobi
+        pandapip1
+        ShamrockLee
+      ];
+      license = lib.licenses.gpl2Plus;
+      platforms = lib.platforms.unix;
+      broken = stdenv.hostPlatform.isDarwin;
+    };
+  })
