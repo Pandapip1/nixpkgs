@@ -15,6 +15,7 @@
   plover-stroke,
   rtf-tokenize,
   setuptools,
+  standard-pkg-resources,
   wcwidth,
   wheel,
   python-xlib,
@@ -42,6 +43,8 @@ buildPythonPackage (finalAttrs: {
   build-system = [
     babel
     setuptools
+    # setuptools>=82 dropped pkg_resources, which plover_build_utils/setup.py imports at build time
+    standard-pkg-resources
     pyqt5
     wheel
   ];
@@ -53,6 +56,7 @@ buildPythonPackage (finalAttrs: {
     plover-stroke
     rtf-tokenize
     setuptools
+    standard-pkg-resources
     wcwidth
     python-xlib
   ];
