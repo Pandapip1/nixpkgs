@@ -95,8 +95,6 @@ def test_table_single_column() -> None:
 
 def test_table_column_alignment() -> None:
     c = Converter({})
-    # per-column alignment is declared once, in the header separator row, and applies
-    # to the whole column, header included: `lb cb rb` / `l c r` here.
     assert c._render(textwrap.dedent("""
       | l | c | r |
       |:--|:-:|--:|
@@ -123,8 +121,6 @@ def test_table_header_shown() -> None:
 
 def test_table_empty_cell() -> None:
     c = Converter({})
-    # an empty data row would otherwise vanish entirely, since _join_block drops
-    # empty strings; the single-column case needs a placeholder to stay a table row.
     assert c._render(textwrap.dedent("""
       | key |
       |-----|
