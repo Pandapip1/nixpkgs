@@ -29,13 +29,63 @@ logger: Final = logging.getLogger(__name__)
 def reexec(
     argv: list[str],
     args: argparse.Namespace,
+    action: Action,
     grouped_nix_args: GroupedNixArgs,
-) -> None:
+) -> Path | None:
+    """Re-exec into a newer `nixos-rebuild`, if the target configuration
+    ships one.
+
+    When building locally from a flake (i.e.: no `--build-host`,
+    `--store-path` or `--rollback`), the system closure is evaluated and
+    built together with `nixos-rebuild` itself, in a single Nix invocation,
+    since both live under the same `nixosConfigurations.<host>` attribute
+    set. This avoids evaluating the flake (and re-running any
+    evaluation-time side effects from `nixpkgs.overlays`, like warnings)
+    twice in the common case.
+
+    If no re-exec turns out to be necessary, the already-built system
+    closure is returned so the caller can skip building it again.
+    """
     if os.environ.get(NIXOS_REBUILD_REEXEC_ENV):
-        return
+        return None
+
+    assert action in (Action.SWITCH, Action.BOOT, Action.TEST), (
+        f"reexec() should only be called for switch/boot/test, got: {action}"
+    )
+
+    target_host = Remote.from_arg(args.target_host)
+    build_host = Remote.from_arg(args.build_host, validate_opts=False)
+    flake = Flake.from_arg(args.flake, target_host)
+
+    # We can only combine the two builds if we are building (as opposed to
+    # using a pre-built '--store-path' or '--rollback'-ing) locally from a
+    # flake, since that's the only case where both attributes live in the
+    # same evaluation and are built by the same 'nix build' call.
+    combine_with_system_build = (
+        flake is not None
+        and build_host is None
+        and not args.store_path
+        and not args.rollback
+    )
 
     drv = None
-    if flake := Flake.from_arg(args.flake, Remote.from_arg(args.target_host)):
+    system_path = None
+    if combine_with_system_build:
+        assert flake is not None
+        # `reexec()` is only called for 'switch', 'boot' and 'test'
+        # (`can_run` in `execute()`), and `_get_system_attr` always resolves
+        # those to "config.system.build.toplevel", so it's hardcoded here to
+        # avoid resolving a `BuildAttr` (which can shell out to
+        # `nix-instantiate`) for something that ends up unused.
+        system_attr = "config.system.build.toplevel"
+        drv, system_path = nix.build_flake_many(
+            [NIXOS_REBUILD_ATTR, system_attr],
+            flake,
+            grouped_nix_args.flake_build_flags
+            | grouped_nix_args.flake_eval_flags
+            | {"no_link": True},
+        )
+    elif flake is not None:
         drv = nix.build_flake(
             NIXOS_REBUILD_ATTR,
             flake,
@@ -78,6 +128,13 @@ def reexec(
                 # We already run clean-up, let's re-exec in the current version
                 # to avoid issues
                 os.execve(current, argv, os.environ | {NIXOS_REBUILD_REEXEC_ENV: "1"})
+            # os.execve() only returns on failure, and we always re-exec
+            # (possibly into ourselves) above; if we somehow get here, the
+            # already-built system closure is no longer trustworthy since a
+            # newer nixos-rebuild is available but couldn't be used.
+            return None
+
+    return system_path
 
 
 def _validate_image_variant(image_variant: str, variants: ImageVariants) -> None:
@@ -280,6 +337,7 @@ def build_and_activate_system(
     flake: Flake | None,
     build_attr: BuildAttr,
     grouped_nix_args: GroupedNixArgs,
+    prebuilt_path: Path | None = None,
 ) -> None:
     logger.info("building the system configuration...")
     attr = _get_system_attr(
@@ -308,6 +366,16 @@ def build_and_activate_system(
             args=args,
             target_host=target_host,
             profile=profile,
+        )
+    elif prebuilt_path is not None:
+        # `reexec()` already built this alongside `nixos-rebuild` itself, in
+        # the same Nix evaluation, and determined no re-exec was needed.
+        path_to_config = prebuilt_path
+        nix.copy_closure(
+            path_to_config,
+            to_host=target_host,
+            from_host=build_host,
+            copy_flags=grouped_nix_args.copy_flags,
         )
     else:
         path_to_config = _build_system(

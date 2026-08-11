@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import textwrap
@@ -599,6 +600,109 @@ def test_execute_nix_switch_flake(mock_run: Mock, tmp_path: Path) -> None:
                 **DEFAULT_RUN_KWARGS,
             ),
         ]
+    )
+
+
+@patch.dict(
+    os.environ,
+    {"NIXOS_REBUILD_I_UNDERSTAND_THE_CONSEQUENCES_PLEASE_BREAK_MY_SYSTEM": "1"},
+    clear=True,
+)
+@patch("subprocess.run", autospec=True)
+def test_execute_nix_switch_flake_reexec_combined(
+    mock_run: Mock, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """With re-exec enabled (the default, i.e.: no '--no-reexec'), building
+    locally from a flake should build `nixos-rebuild` and the system closure
+    together, in a single 'nix build' call, instead of evaluating the flake
+    twice."""
+    monkeypatch.setattr(nr.services, "EXECUTABLE", "nixos-rebuild-ng")
+
+    config_path = tmp_path / "test"
+    config_path.touch()
+    # Store path of the (unchanged) 'nixos-rebuild' currently running
+    nixos_rebuild_path = tmp_path / "nixos-rebuild-ng-pkg"
+    (nixos_rebuild_path / "bin").mkdir(parents=True)
+    current_bin = nixos_rebuild_path / "bin" / "nixos-rebuild-ng"
+    current_bin.touch()
+
+    def run_side_effect(args: list[str], **kwargs: Any) -> CompletedProcess[str]:
+        if args[0] == "nix" and "build" in args:
+            assert "--json" in args, (
+                "expected the combined build to use '--json', got: " + repr(args)
+            )
+            return CompletedProcess(
+                [],
+                0,
+                json.dumps(
+                    [
+                        {
+                            "drvPath": "/nix/store/aaa.drv",
+                            "outputs": {"out": str(nixos_rebuild_path)},
+                        },
+                        {
+                            "drvPath": "/nix/store/bbb.drv",
+                            "outputs": {"out": str(config_path)},
+                        },
+                    ]
+                ),
+            )
+        elif args[0] == "nix-instantiate":
+            return CompletedProcess([], 1)
+        else:
+            return CompletedProcess([], 0)
+
+    mock_run.side_effect = run_side_effect
+
+    nr.execute([str(current_bin), "switch", "--flake", "/path/to/config#hostname"])
+
+    build_calls = [
+        c
+        for c in mock_run.call_args_list
+        if c.args[0][0] == "nix" and "build" in c.args[0]
+    ]
+    # A single 'nix build' call evaluates the flake once and builds both
+    # 'nixos-rebuild' and the system closure together.
+    assert len(build_calls) == 1
+    assert build_calls[0] == call(
+        [
+            "nix",
+            "--extra-experimental-features",
+            "nix-command flakes",
+            "build",
+            "--json",
+            '/path/to/config#nixosConfigurations."hostname".config.system.build.nixos-rebuild',
+            '/path/to/config#nixosConfigurations."hostname".config.system.build.toplevel',
+            "--no-link",
+        ],
+        check=True,
+        stdout=PIPE,
+        **DEFAULT_RUN_KWARGS,
+    )
+
+    # No re-exec happened (the built 'nixos-rebuild' is the one already
+    # running), and the already-built system closure from the combined
+    # build was used directly to activate, without building it again.
+    mock_run.assert_any_call(
+        [
+            "nix-env",
+            "-p",
+            Path("/nix/var/nix/profiles/system"),
+            "--set",
+            config_path,
+        ],
+        check=True,
+        **DEFAULT_RUN_KWARGS,
+    )
+    mock_run.assert_any_call(
+        [
+            *nr.nix.SWITCH_TO_CONFIGURATION_CMD_PREFIX,
+            config_path / "bin/switch-to-configuration",
+            "switch",
+        ],
+        check=True,
+        stdout=ANY,
+        **(DEFAULT_RUN_KWARGS | {"env": {"NIXOS_INSTALL_BOOTLOADER": "0"}}),
     )
 
 

@@ -95,6 +95,34 @@ def build_flake(
     return Path(r.stdout.strip())
 
 
+def build_flake_many(
+    attrs: list[str],
+    flake: Flake,
+    flake_build_flags: Args | None = None,
+) -> list[Path]:
+    """Build multiple NixOS attributes from the same flake in a single Nix
+    evaluation.
+
+    Building several attributes in one `nix build` call, instead of once per
+    attribute, means the flake (and any `nixpkgs.overlays`) is only
+    evaluated once, instead of once per call. This avoids duplicated
+    evaluation-time side effects, e.g.: warnings emitted by overlays.
+
+    Returns the built attributes as paths, in the same order as `attrs`.
+    """
+    run_args = [
+        "nix",
+        *FLAKE_FLAGS,
+        "build",
+        "--json",
+        *(flake.to_attr(attr) for attr in attrs),
+        *dict_to_flags(flake_build_flags),
+    ]
+    r = run_wrapper(run_args, stdout=PIPE)
+    results = json.loads(r.stdout)
+    return [Path(result["outputs"]["out"]) for result in results]
+
+
 def build_remote(
     attr: str,
     build_attr: BuildAttr,

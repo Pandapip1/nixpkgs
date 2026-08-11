@@ -371,9 +371,12 @@ def execute(argv: list[str]) -> None:
     can_run = action in (Action.SWITCH, Action.BOOT, Action.TEST)
 
     # Re-exec to a newer version of the script before building to ensure we get
-    # the latest fixes
+    # the latest fixes. When possible, this also builds the system
+    # configuration in the same Nix evaluation, so it doesn't need to be
+    # built again below.
+    prebuilt_path = None
     if can_run and not args.no_reexec:
-        services.reexec(argv, args, grouped_nix_args)
+        prebuilt_path = services.reexec(argv, args, action, grouped_nix_args)
 
     profile = Profile.from_arg(args.profile_name)
     target_host = Remote.from_arg(args.target_host)
@@ -412,6 +415,7 @@ def execute(argv: list[str]) -> None:
                 flake=flake,
                 build_attr=build_attr,
                 grouped_nix_args=grouped_nix_args,
+                prebuilt_path=prebuilt_path,
             )
 
         case Action.EDIT:

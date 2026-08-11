@@ -82,6 +82,57 @@ def test_build_flake(mock_run: Mock, monkeypatch: MonkeyPatch, tmpdir: Path) -> 
     )
 
 
+@patch(
+    get_qualified_name(n.run_wrapper, n),
+    autospec=True,
+    return_value=CompletedProcess(
+        [],
+        0,
+        stdout=json.dumps(
+            [
+                {
+                    "drvPath": "/nix/store/aaa.drv",
+                    "outputs": {"out": "/nix/store/aaa-nixos-rebuild-ng"},
+                },
+                {
+                    "drvPath": "/nix/store/bbb.drv",
+                    "outputs": {"out": "/nix/store/bbb-nixos-system"},
+                },
+            ]
+        ),
+    ),
+)
+def test_build_flake_many(
+    mock_run: Mock, monkeypatch: MonkeyPatch, tmpdir: Path
+) -> None:
+    monkeypatch.chdir(tmpdir)
+    flake = m.Flake.parse("/flake.nix#hostname")
+
+    assert n.build_flake_many(
+        ["config.system.build.nixos-rebuild", "config.system.build.toplevel"],
+        flake,
+        {"no_link": True, "nix_flag": "foo"},
+    ) == [
+        Path("/nix/store/aaa-nixos-rebuild-ng"),
+        Path("/nix/store/bbb-nixos-system"),
+    ]
+    mock_run.assert_called_with(
+        [
+            "nix",
+            "--extra-experimental-features",
+            "nix-command flakes",
+            "build",
+            "--json",
+            '/flake.nix#nixosConfigurations."hostname".config.system.build.nixos-rebuild',
+            '/flake.nix#nixosConfigurations."hostname".config.system.build.toplevel',
+            "--no-link",
+            "--nix-flag",
+            "foo",
+        ],
+        stdout=PIPE,
+    )
+
+
 @patch(get_qualified_name(n.run_wrapper, n), autospec=True)
 @patch("uuid.uuid4", autospec=True)
 def test_build_remote(
