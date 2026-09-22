@@ -68,6 +68,44 @@
     sha256 = "sha256-FknO6C/PSnMPfhUqObD4vsW4PhkwdmPa9blNzcNvJQ4=";
   };
 
+  fetchLFS = testers.invalidateFetcherByDrvHash fetchgit {
+    name = "fetchgit-lfs-test";
+    url = "https://github.com/FreeSpacenav/spnavcfg";
+    rev = "84543beeed78c41796890b67b56b10287ad610fd";
+    fetchLFS = true;
+    hash = "sha256-Q9sLlllYpFQwGCepfSovJsVroTQN5XMUJj5Aut2Kz2A=";
+    postFetch = ''
+      # Make sure the LFS-tracked file was actually fetched and not left as
+      # a pointer file (which is what a broken/unfetched LFS checkout would
+      # leave behind).
+      size=$(stat -c%s "$out/icons/spnavcfg.png")
+      if [ "$size" -lt 1000 ]; then
+        echo "icons/spnavcfg.png looks like an unresolved LFS pointer file ($size bytes)" >&2
+        exit 1
+      fi
+    '';
+  };
+
+  # LFS objects outside of a sparse-checkout should not be fetched either.
+  fetchLFSSparseCheckout = testers.invalidateFetcherByDrvHash fetchgit {
+    name = "fetchgit-lfs-sparse-checkout-test";
+    url = "https://github.com/FreeSpacenav/spnavcfg";
+    rev = "84543beeed78c41796890b67b56b10287ad610fd";
+    fetchLFS = true;
+    nonConeMode = true;
+    sparseCheckout = [
+      "/*"
+      "!/icons/**"
+    ];
+    hash = "sha256-NeIc6rmXZyYR2F3jo98kGxGrYTBUJb2fmEoxA3qAxB0=";
+    postFetch = ''
+      if [ -e "$out/icons" ]; then
+        echo "icons/ should have been excluded from the checkout" >&2
+        exit 1
+      fi
+    '';
+  };
+
   leave-git = testers.invalidateFetcherByDrvHash fetchgit {
     name = "leave-git-nix-source";
     url = "https://github.com/NixOS/nix";
@@ -82,6 +120,27 @@
     rev = "26473335b84ead88ee0a3b649b1c7fa4a91cfd4a";
     sha256 = "sha256-rmP8PQT0wJBopdtr/hsB7Y/L1G+ZPdHC2r9LB05Qrj4=";
     fetchSubmodules = true;
+  };
+
+  # A submodule pruned from the sparse-checkout should be skipped entirely
+  # (not cloned at all), rather than fetched in full regardless.
+  submodule-sparse-checkout-exclude = testers.invalidateFetcherByDrvHash fetchgit {
+    name = "fetchgit-submodule-sparse-exclude-test";
+    url = "https://github.com/pineapplehunter/nix-test-repo-with-submodule";
+    rev = "26473335b84ead88ee0a3b649b1c7fa4a91cfd4a";
+    fetchSubmodules = true;
+    nonConeMode = true;
+    sparseCheckout = [
+      "/*"
+      "!nix-test-repo-submodule"
+    ];
+    hash = "sha256-Qx1/SrqTuoKnF6sIxKfEjXXe7V1l/TEPp/a/p/v90gs=";
+    postFetch = ''
+      if [ -e "$out/nix-test-repo-submodule" ]; then
+        echo "nix-test-repo-submodule should have been excluded from the checkout" >&2
+        exit 1
+      fi
+    '';
   };
 
   submodule-leave-git = testers.invalidateFetcherByDrvHash fetchgit {

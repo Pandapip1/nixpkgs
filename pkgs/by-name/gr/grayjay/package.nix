@@ -54,9 +54,18 @@ let
     owner = "videostreaming";
     repo = "Grayjay.Desktop";
     tag = version;
-    hash = "sha256-dhXUjj9x8v1bfHLPxNtcysj/eKeT3kkSeVuX6PKoykE=";
+    # Not fetchLFS: everything under Grayjay.ClientServer/deps/ (~420MB of
+    # vendored ffmpeg/libcurl-impersonate/FUTO.Updater.Client/libsteam_api
+    # binaries for every platform) is unconditionally replaced by real
+    # nixpkgs packages in postInstall below, or simply unused on Linux
+    # (libsteam_api.so: not referenced anywhere in the C# sources, only
+    # copied alongside CEF for an optional Steam overlay integration).
+    # Without fetchLFS, git-lfs is never installed/invoked at all, so these
+    # paths are left as their small (~130 byte) LFS pointer text instead of
+    # their real content - which is all buildDotnetModule's file-copy steps
+    # need, since nothing here validates file contents, only presence.
+    hash = "sha256-pWGUEFwWySsbcZqzEsL0xUutiRSwTY0zQQE1jQnd0jM=";
     fetchSubmodules = true;
-    fetchLFS = true;
   };
   justcefNative = fetchurl {
     url = "https://static.grayjay.app/justcef/1/JustCefNative-linux-x64.zip";

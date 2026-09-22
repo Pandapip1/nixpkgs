@@ -778,7 +778,7 @@ Additionally, the following optional arguments can be given:
 
 *`fetchLFS`* (Boolean)
 
-: Whether to fetch LFS objects.
+: Whether to fetch LFS objects. LFS objects are fetched in a single batched, concurrent `git lfs pull` after the checkout, rather than one at a time during the checkout itself.
 
 *`preFetch`* (String)
 
@@ -833,6 +833,36 @@ Additionally, the following optional arguments can be given:
   :::
 
   See [git sparse-checkout](https://git-scm.com/docs/git-sparse-checkout) for more information.
+
+  To instead *exclude* some paths (rather than list the ones to include), set
+  `nonConeMode = true` and write gitignore-style patterns directly, starting
+  with `/*` to include everything and then negating (`!`) the paths to leave
+  out:
+
+  ::: {.example #ex-fetchgit-sparseCheckout-exclude}
+
+  # Use `sparseCheckout` in non-cone mode to exclude some directories:
+
+  ```nix
+  { stdenv, fetchgit }:
+
+  stdenv.mkDerivation {
+    name = "hello";
+    src = fetchgit {
+      url = "https://...";
+      nonConeMode = true;
+      sparseCheckout = [
+        "/*"
+        "!/directory/to/be/excluded"
+        "!*.mp4"
+      ];
+      hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    };
+  }
+  ```
+  :::
+
+  If `fetchLFS` is also set, LFS objects outside of the sparse-checkout are not fetched either.
 
 *`rootDir`* (String)
 
