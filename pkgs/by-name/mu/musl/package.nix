@@ -121,6 +121,7 @@ stdenv.mkDerivation (finalAttrs: {
     "out"
     "bin"
     "dev"
+    "static"
   ];
 
   dontDisableStatic = true;
@@ -172,6 +173,13 @@ stdenv.mkDerivation (finalAttrs: {
     install -D ${queue_h} $dev/include/sys/queue.h
     install -D ${cdefs_h} $dev/include/sys/cdefs.h
     install -D ${tree_h} $dev/include/sys/tree.h
+  ''
+  + ''
+    mkdir -p $static/lib
+    # Only libc.a: musl's libm.a, libpthread.a, librt.a, libdl.a and the rest
+    # are empty stubs, and they are the only providers of -lm, -lpthread and
+    # friends for dynamic links too, since musl ships no libm.so.
+    mv $out/lib/libc.a $static/lib
   '';
 
   passthru = {
