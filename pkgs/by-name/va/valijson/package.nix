@@ -44,7 +44,8 @@ stdenv.mkDerivation (finalAttrs: {
     # QtJsonAdapter's isInteger()/getInteger() use QJsonValue::toInt()
     # (32-bit), so integral values outside int32 range (e.g. a uint32 CRC)
     # either fail "type": "integer" schema checks or get silently truncated.
-    # Still present upstream as of this release. TODO: Upstream.
+    # Still present upstream as of this release. Upstream PR:
+    # https://github.com/tristanpenman/valijson/pull/258
     ./qtjson-adapter-int64.patch
     # test_suite otherwise builds jsoncpp/yaml-cpp/json11 from vendored
     # submodule sources and vendors its own gtest/nlohmann-json/rapidjson via

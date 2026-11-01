@@ -26,7 +26,8 @@ stdenv.mkDerivation (finalAttrs: {
   # original CMakeLists.txt) and a portable default `definitions.h`/struct
   # set (mirroring PX4-Autopilot's
   # msg/{SensorGnss,SatelliteInfo,SensorGnssRelative,SensorGnssRf,SensorGnssSpectrum}.msg)
-  # so this can be a standalone, linkable library. TODO: Upstream.
+  # so this can be a standalone, linkable library. Upstream PR:
+  # https://github.com/PX4/PX4-GPSDrivers/pull/249
   patches = [
     ./build-overhaul.patch
   ];

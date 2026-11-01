@@ -19,7 +19,8 @@
 # generated once out of band by the reference xz-utils compressor, embedded
 # and decoded through the exact vendored decoder this package compiles,
 # then compared byte-for-byte against the known-good plaintext it was
-# produced from.
+# produced from. Upstream PR (a more general-purpose version of this same
+# build+test addition): https://github.com/tukaani-project/xz-embedded/pull/4
 stdenv.mkDerivation (finalAttrs: {
   pname = "xz-embedded";
   version = "2024.12.30";

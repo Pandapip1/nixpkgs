@@ -27,10 +27,10 @@
 # dialect, right alongside its message headers - cmake-build.patch supplies
 # the missing test driver and a real MAVLINK_ASSERT, so these checks
 # actually run, one dialect at a time (the "all" meta-dialect is skipped:
-# its generated testsuite.h has an upstream mavgen bug, independently found,
-# fixed, and pushed to a fork this session but not yet merged - see the
-# patch - and every message it contains is already covered via its 18
-# constituent dialects).
+# its generated testsuite.h has an upstream mavgen bug - see the patch -
+# and every message it contains is already covered via its 18 constituent
+# dialects). Upstream PR for the mavgen bug:
+# https://github.com/ArduPilot/pymavlink/pull/1322
 stdenv.mkDerivation (finalAttrs: {
   pname = "mavlink-c-library-v2";
   version = "0-unstable-2026-10-28";
