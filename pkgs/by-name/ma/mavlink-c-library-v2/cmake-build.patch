@@ -1,13 +1,13 @@
-diff -ruN mavlink-pristine/cmake/mavlink-c-library-v2Config.cmake.in mavlink-new/cmake/mavlink-c-library-v2Config.cmake.in
---- mavlink-pristine/cmake/mavlink-c-library-v2Config.cmake.in	1969-12-31 19:00:00.000000000 -0500
-+++ mavlink-new/cmake/mavlink-c-library-v2Config.cmake.in	2026-10-31 12:38:45.070959163 -0400
+diff -ruN mavlink-pristine/nix-build/cmake/mavlink-c-library-v2Config.cmake.in mavlink-new/nix-build/cmake/mavlink-c-library-v2Config.cmake.in
+--- mavlink-pristine/nix-build/cmake/mavlink-c-library-v2Config.cmake.in	1969-12-31 19:00:00.000000000 -0500
++++ mavlink-new/nix-build/cmake/mavlink-c-library-v2Config.cmake.in	2026-10-31 20:41:53.869924796 -0400
 @@ -0,0 +1,3 @@
 +@PACKAGE_INIT@
 +
 +include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
-diff -ruN mavlink-pristine/cmake/mavlink_roundtrip_test.c.in mavlink-new/cmake/mavlink_roundtrip_test.c.in
---- mavlink-pristine/cmake/mavlink_roundtrip_test.c.in	1969-12-31 19:00:00.000000000 -0500
-+++ mavlink-new/cmake/mavlink_roundtrip_test.c.in	2026-10-31 12:42:19.281346044 -0400
+diff -ruN mavlink-pristine/nix-build/cmake/mavlink_roundtrip_test.c.in mavlink-new/nix-build/cmake/mavlink_roundtrip_test.c.in
+--- mavlink-pristine/nix-build/cmake/mavlink_roundtrip_test.c.in	1969-12-31 19:00:00.000000000 -0500
++++ mavlink-new/nix-build/cmake/mavlink_roundtrip_test.c.in	2026-10-31 20:42:06.022355677 -0400
 @@ -0,0 +1,63 @@
 +/* Exercises the pack/unpack round-trip self-test code that mavgen
 + * generates into every dialect's testsuite.h (upstream mavlink/mavlink's
@@ -72,25 +72,32 @@ diff -ruN mavlink-pristine/cmake/mavlink_roundtrip_test.c.in mavlink-new/cmake/m
 +    printf("@MAVLINK_TEST_DIALECT@: all message pack/unpack round-trips OK\n");
 +    return 0;
 +}
-diff -ruN mavlink-pristine/CMakeLists.txt mavlink-new/CMakeLists.txt
---- mavlink-pristine/CMakeLists.txt	1969-12-31 19:00:00.000000000 -0500
-+++ mavlink-new/CMakeLists.txt	2026-10-31 12:42:51.178627812 -0400
-@@ -0,0 +1,93 @@
+diff -ruN mavlink-pristine/nix-build/CMakeLists.txt mavlink-new/nix-build/CMakeLists.txt
+--- mavlink-pristine/nix-build/CMakeLists.txt	1969-12-31 19:00:00.000000000 -0500
++++ mavlink-new/nix-build/CMakeLists.txt	2026-10-31 20:42:44.187279179 -0400
+@@ -0,0 +1,100 @@
 +cmake_minimum_required(VERSION 3.16)
 +project(mavlink-c-library-v2 VERSION 1.0 LANGUAGES C)
++
++include(GNUInstallDirs)
++
++# mavgen writes the generated headers into generated-headers/ (see
++# postPatch), a sibling of this directory - not the source root, which is
++# the rest of the real mavlink/mavlink checkout.
++set(MAVLINK_HEADER_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../generated-headers")
 +
 +add_library(mavlink INTERFACE)
 +
 +target_include_directories(mavlink
 +    INTERFACE
-+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/all>
-+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/common>
-+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/development>
-+        $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
-+        $<INSTALL_INTERFACE:include/${PROJECT_NAME}/all>
-+        $<INSTALL_INTERFACE:include/${PROJECT_NAME}/common>
-+        $<INSTALL_INTERFACE:include/${PROJECT_NAME}/development>
++        $<BUILD_INTERFACE:${MAVLINK_HEADER_ROOT}>
++        $<BUILD_INTERFACE:${MAVLINK_HEADER_ROOT}/all>
++        $<BUILD_INTERFACE:${MAVLINK_HEADER_ROOT}/common>
++        $<BUILD_INTERFACE:${MAVLINK_HEADER_ROOT}/development>
++        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>
++        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/all>
++        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/common>
++        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/development>
 +)
 +
 +add_library(${PROJECT_NAME}::mavlink ALIAS mavlink)
@@ -103,7 +110,7 @@ diff -ruN mavlink-pristine/CMakeLists.txt mavlink-new/CMakeLists.txt
 +include(CTest)
 +
 +if(BUILD_TESTING)
-+    file(GLOB MAVLINK_TESTSUITE_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*/testsuite.h")
++    file(GLOB MAVLINK_TESTSUITE_HEADERS RELATIVE "${MAVLINK_HEADER_ROOT}" "${MAVLINK_HEADER_ROOT}/*/testsuite.h")
 +
 +    foreach(_testsuite_header ${MAVLINK_TESTSUITE_HEADERS})
 +        get_filename_component(MAVLINK_TEST_DIALECT "${_testsuite_header}" DIRECTORY)
@@ -139,15 +146,15 @@ diff -ruN mavlink-pristine/CMakeLists.txt mavlink-new/CMakeLists.txt
 +    EXPORT ${PROJECT_NAME}Targets
 +)
 +
-+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-+    DESTINATION include/${PROJECT_NAME}
++install(DIRECTORY ${MAVLINK_HEADER_ROOT}/
++    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 +    FILES_MATCHING PATTERN "*.h"
 +)
 +
 +install(EXPORT ${PROJECT_NAME}Targets
 +    FILE ${PROJECT_NAME}Targets.cmake
 +    NAMESPACE ${PROJECT_NAME}::
-+    DESTINATION lib/cmake/${PROJECT_NAME}
++    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 +)
 +
 +include(CMakePackageConfigHelpers)
@@ -161,11 +168,11 @@ diff -ruN mavlink-pristine/CMakeLists.txt mavlink-new/CMakeLists.txt
 +configure_package_config_file(
 +    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
 +    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-+    INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
++    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 +)
 +
 +install(FILES
 +    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
 +    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-+    DESTINATION lib/cmake/${PROJECT_NAME}
++    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 +)
