@@ -21,7 +21,6 @@
   ulog-cpp,
   valijson,
   xz,
-  xz-embedded,
   zlib,
   zstd,
   ninja,
@@ -341,7 +340,6 @@ stdenv.mkDerivation (finalAttrs: {
     valijson
     px4-gpsdrivers
     xz
-    xz-embedded
     zlib
     zstd
   ]
